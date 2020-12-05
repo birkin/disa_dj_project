@@ -14,7 +14,12 @@ def validate_json( user_json_path: str ) -> bool:
     try:
         with open( user_json_path, 'r' ) as f:
             user_info: dict = json.loads( f.read() )
-            assert len
+            for field in [ 'first_name', 'last_name', 'email_address', 'eppn', 'uuid' ]:
+                assert len( user_info[field] ) > 0
+            assert user_info['old_db_id'] > 0
+        log.debug( 'opening and reading file was successful' )
+        return_val = True
     except:
         log.exception( 'problem loading json-file; exception follows...' )
-        return False
+        return_val = False
+    return return_val
