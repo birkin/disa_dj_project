@@ -81,7 +81,8 @@ urlpatterns = [
 
     ## support urls...
 
-    url( r'^denormalized.json$', views.dnrmlzd_jsn_prx_url, name='dnrmlzd_jsn_prx_url_url' ),
+    url( r'^denormalized.json$', views.dnrmlzd_jsn_prx_url, name='dnrmlzd_jsn_prx_url_url' ),  ## TODO delete
+    url( r'^browse.json$', views.browse_json_proxy, name='browse_json_proxy_url' ),
     url( r'^version/$', views.version, name='version_url' ),
     url( r'^error_check/$', views.error_check, name='error_check_url' ),
 

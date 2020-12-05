@@ -34,10 +34,10 @@ log = logging.getLogger(__name__)
 # ===========================
 
 
-# def browse( request ):
+# def browse( request ):  ## TODO: delete this function
 def browse_old( request ):
     """ Displays home page. """
-    log.debug( '\n\nstarting browse()' )
+    log.debug( '\n\nstarting old browse()' )
     context = {
         'denormalized_json_url': reverse('dnrmlzd_jsn_prx_url_url'),
         'info_image_url': f'{project_settings.STATIC_URL}images/info.png',
@@ -56,7 +56,7 @@ def browse_tabulator( request ):
     """ Displays ALTERNATE home page. """
     log.debug( '\n\nstarting browse()' )
     context = {
-        'denormalized_json_url': reverse('dnrmlzd_jsn_prx_url_url'),
+        'browse_json_url': reverse( 'browse_json_proxy_url' ),
         'info_image_url': f'{project_settings.STATIC_URL}images/info.png',
         'logout_next': reverse( 'browse_url' ) }
     if request.user.is_authenticated:
@@ -561,14 +561,17 @@ def utility_referents( request ):
 # ===========================
 
 
-# def dnrmlzd_jsn_prx_url( request ):
-#     """ Allows ajax loading of json from browse() view. """
-#     r = requests.get( settings_app.DENORMALIZED_JSON_URL )
-#     return HttpResponse( r.content, content_type='application/json; charset=utf-8' )
-
 def dnrmlzd_jsn_prx_url( request ):
-    """ Allows ajax loading of json from browse() view. """
+    """ Allows ajax loading of json from old browse() view. """
     url = settings_app.DENORMALIZED_JSON_URL
+    log.debug( f'url, ``{url}``' )
+    r = requests.get( url )
+    return HttpResponse( r.content, content_type='application/json; charset=utf-8' )
+
+
+def browse_json_proxy( request ):
+    """ Allows ajax loading of json from browse() view. """
+    url = settings_app.BROWSE_JSON_URL
     log.debug( f'url, ``{url}``' )
     r = requests.get( url )
     return HttpResponse( r.content, content_type='application/json; charset=utf-8' )

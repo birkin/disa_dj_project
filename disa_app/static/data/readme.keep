@@ -1,0 +1,5 @@
+This file  simply ensures the 'data' directory exists in the git repo.
+
+(Git will not keep an empty directory.)
+
+The directory needs to exist for the generate_browse_data.py file to run properly.

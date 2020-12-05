@@ -8,17 +8,17 @@
 
 <!-- Bootstrap -->
 
-<link   rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" 
-        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" 
+<link   rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
         crossorigin="anonymous" />
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" 
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" 
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
         crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" 
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" 
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
 <!-- Tabulator library -->
@@ -45,26 +45,34 @@
                 <h1 class="modal-title">
                     Details about <span class="details-title-name"></span>
                 </h1>
-                <div class="badge badge-primary">id:<span id="details-id"></span></div>
+                <div class="badge badge-primary">id <span id="details-id"></span></div>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                    <div class="card">
-                        <div class="card-header">
-                            From <em id="details-doc"></em>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text" id="details-transcription"></p>
-                        </div>
+                <div class="card">
+                    <div class="card-header">
+                        From <em id="details-doc"></em>
                     </div>
-                    <h2>Information entered for <span class="details-title-name"></span></h2>
-                    <table id="details-table" class="table">
-                    </table>
-                    <!-- 
+                    <div class="card-body">
+                        <p class="card-text" id="details-transcription"></p>
+                    </div>
+                </div>
+                <h2>Personal details</h2>
+                <table id="details-table" class="table">
+                </table>
+                <h2>About the source</h2>
+                <p style="font-style: italic">
+                    A note on terminology: information about individuals are recorded from "items" (such as an advertisement announcing a person fleeing enslavement)
+                    that are contained in "documents" (such as a newspaper).
+                </p>
+                <table id="source-details-table" class="table">
+                </table>
+
+                    <!--
                 <p id="details-introduction">
-                    We know about <span id="details-name"></span> from a document titled 
+                    We know about <span id="details-name"></span> from a document titled
                     "<span id="details-doc"></span>" dated <span id="details-doc-date"></span>.
                 </p>
                 <div id="details-transcription" class="highlight"></div> -->
@@ -86,7 +94,7 @@
     <div class="row">
         <p class="col-6">
             <em>Welcome, community collaborators!</em> This is a
-            preliminary, experimental search portal of the 
+            preliminary, experimental search portal of the
             <a href="http://indigenousslavery.org">Database of
             Indigenous Slavery in the Americas</a>, which
             allows you to search the approximately 3,000
@@ -122,12 +130,12 @@
             </em>
         </div>
         <div class="col-6">
-            <p id="view-options">View results as 
+            <p id="view-options">View results as
                 <input type="radio" id="biographical-view-option" name="view-type" value="biographical" checked>
                 <label for="biographical-view-option">biographies</label>
                 <input type="radio" id="tabular-view-option" name="view-type" value="tabular">
                 <label for="tabular-view-option">a table</label>
-            </p>                        
+            </p>
             <p>
                 <button id="download-data" title="Download the results as a CSV file">
                     Download results
@@ -135,7 +143,7 @@
             </p>
         </div>
     </div>
-    
+
     <!-- Container for data table (tabulator library output) -->
 
     <div id="data-display" class="table-borderless biographical">
@@ -143,7 +151,7 @@
     </div>
 
     <!-- Footer: Acknowledgements -->
-    
+
     <div class="info-box acknowledgements">
         <h5>Acknowledgements</h5>
         <p>DISA has been generously funded and supported by <a
@@ -156,9 +164,11 @@
                 href="http://cds.library.brown.edu/">the Center for
                 Digital Scholarship</a> (Brown&nbsp;University&nbsp;Library)</p>
     </div>
-    
+    <!--
     <input type="hidden" id="denormalized_json_url"
-        name="variable" value="{{ denormalized_json_url }}" />
+        name="variable" value="{{ denormalized_json_url }}" />-->
+    <input type="hidden" id="browse_json_url"
+        name="variable" value="{{ browse_json_url }}" />
     <input type="hidden" id="info_image_url" name="variable"
         value="{{ info_image_url }}" />
 </div>
