@@ -220,6 +220,7 @@ class Reference(Base):
         nullable=False)
     date = Column(DateTime())
     transcription = Column(UnicodeText())
+    image_url = Column( String(500) )
     referents = relationship(
         'Referent', backref='reference', lazy=True, cascade="delete")
 

@@ -52,7 +52,7 @@ def manage_generation():
 
     filter_deleted = FilterDeleted()
     referents = filter_deleted.manage_filtration( referents_all, session )
-    log.debug( f'referents after deletion-removal, ``{len(referents)}``' )
+    log.debug( f'referents after deletion-removal count, ``{len(referents)}``' )
 
     ( output_dct, initialized_referent_dct ) = initialize_output()
 
@@ -69,6 +69,8 @@ def manage_generation():
 
 
 def make_session() -> sqlalchemy.orm.session.Session:
+    """ Sets up sqlalchemy session.
+        Called by manage_generation() controller. """
     engine = create_engine( settings_app.DB_URL, echo=False )
     Session = sessionmaker( bind=engine )
     session = Session()
@@ -78,7 +80,7 @@ def make_session() -> sqlalchemy.orm.session.Session:
 def initialize_output() -> tuple:
     """ Sets up structs for ouput.
         Listed here for visual clarity.
-        Called by manage_generation() """
+        Called by manage_generation() controller. """
     initialized_output_dct = {
         'meta': {
             'date_produced': str( datetime.datetime.now() ),
@@ -112,6 +114,8 @@ def initialize_output() -> tuple:
 
 
 def populate_output( referent, output_dct, initialized_referent_dct ):
+    """ Populates referent, citation, and reference data.
+        Called by manage_generation() controller. """
     # if len( output_dct['referent_list'] ) > 1000:
     #     return
     referent_dct = initialized_referent_dct.copy()
@@ -143,6 +147,9 @@ def populate_output( referent, output_dct, initialized_referent_dct ):
 
 
 def get_roles( referent ):
+    """ Creates list of role names.
+        Examples: ["Enslaved", "Runaway"] Also see get_statuses() below; roles and statuses can seem to overlap.
+        Called by populate_output() """
     roles = []
     for role in referent.roles:
         roles.append( role.name )
@@ -150,6 +157,8 @@ def get_roles( referent ):
 
 
 def get_relationships( referent ):
+    """ Creates list of relationship dicts.
+        Called by populate_output() """
     relationships = []
     referent_relationships = referent.as_subject
     for relationship in referent_relationships:
@@ -170,10 +179,10 @@ def get_relationships( referent ):
     return relationships
 
 
-
-
-
 def get_name( referent ):
+    """ Creates name-tuple.
+        Possible TODO- instead, or also, supply fielded first-name and last-name.
+        Called by populate_output() """
     log.debug( f'referent.names, ``{referent.names}``' )
     for name in referent.names:
         log.debug( f'referent-name.name_type, ``{name.name_type}``')
@@ -184,6 +193,8 @@ def get_name( referent ):
 
 
 def get_tribes( referent ):
+    """ Creates list of tribe names.
+        Called by populate_output() """
     tribes = []
     for tribe in referent.tribes:
         tribes.append( tribe.name )
@@ -191,6 +202,9 @@ def get_tribes( referent ):
 
 
 def get_sex( referent ):
+    """ Creates gender entry, or sets default.
+        TODO- set the default not-recorded string to a constant, and use that whenever it's needed.
+        Called by populate_output() """
     sex = referent.sex
     if sex:
         if len( sex.strip() ) == 0:
@@ -201,6 +215,9 @@ def get_sex( referent ):
 
 
 def get_origins( referent ):
+    """ Creates list of origin names.
+        Often a list of one; example entries: "Cape Cod" or "Carolina" or "Spanish America"
+        Called by populate_output() """
     origins = []
     for origin in referent.origins:
         origins.append( origin.name )
@@ -208,6 +225,8 @@ def get_origins( referent ):
 
 
 def get_vocations( referent ):
+    """ Creates list of vocation names.
+        Called by populate_output() """
     vocations = []
     for vocation in referent.vocations:
         vocations.append( vocation.name )
@@ -215,6 +234,10 @@ def get_vocations( referent ):
 
 
 def get_age( referent ):
+    """ Creates age string or sets default.
+        Examples: "22" or "about 23"
+        TODO- set the default not-recorded string to a constant, and use that whenever it's needed.
+        Called by populate_output() """
     age = '(not-recorded)'
     if referent.age:
         age = referent.age
@@ -265,6 +288,7 @@ def get_citation_and_reference_data( referent ):
         'date_db': str( refrnc.date ),
         'date_display': refrnc.display_date(),
         'transcription': refrnc.transcription,
+        'image_url': refrnc.image_url,
         'locations': refrnc.display_location_info()
     }
     # refrnc.dictify()

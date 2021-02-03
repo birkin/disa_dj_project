@@ -354,6 +354,21 @@
                     <br />
                 <textarea class="form-control" id="transcription"></textarea>
             </div>
+
+            <div class="form-group row">
+                <label for="image_url">Image<br />
+                    <em class="small">
+                      Paste the full URL of the image associated with this item. The image should be
+                      located in <a href="https://drive.google.com/drive/u/1/folders/1iEoQGjFo6ft-Vhzs9yaJytpt4KNmZv_L">this Google Drive folder</a>. 
+                      In Google Drive, right-click on the file and select "Get link," and in the pop-up, clock on "Copy link." Then paste into the field below.
+                    </em></label>
+                    <br />
+                <input class="form-control" id="image_url" 
+                       placeholder="https://drive.google.com/file/d/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/view?usp=sharing"></input>
+                 <div class="alert alert-danger" id="url-error-message" role="alert" hidden>
+                    Not a valid URL!
+                 </div>
+            </div>
             <button type="submit" class="btn btn-primary" id="rec_update">
                 Update
             </button>
@@ -453,8 +468,15 @@ var updateLocationInputs = function (locsArray) {
 }
 
 var setInputValues = function(recData) {
-    /*  Updates input fields from readRecordData() api call when initializing form, and from ajax-update from when data is updated.
-        Called by initializeForm() and updateRecordData() */
+
+    /*  
+      Updates input fields from readRecordData() api call 
+      when initializing form, and from ajax-update from when 
+      data is updated.
+
+      Called by initializeForm() and updateRecordData() 
+    */
+
     console.log( "in setInputValues; will update item fields." )
     if ( $.isEmptyObject(recData) ) {
         return;
@@ -465,6 +487,18 @@ var setInputValues = function(recData) {
     updateLocationInputs(recData['locations']);
     updateRecordType($('#recordtype_autocomplete'), recData['record_type']);
     updateNationalContext($('#national_context'), recData['national_context']);
+    updateImageUrl(document.getElementById('image_url'), recData['image_url']);
+}
+
+const updateImageUrl = function(input, data) {
+  if (data) {
+    try {
+      const validUrl = (new URL(new String(data))).href;
+      input.value = validUrl;
+    } catch (_) { 
+      console.error(`WARNING: provided image URL ${dataAsString} is not valid`);
+    }
+  }
 }
 
 var updateRecordType = function ($input, data) {
@@ -527,6 +561,14 @@ var collectInputValues = function(docId) {
     data['locations'] = collectLocations();
     data['date'] = $('#record_date').val();
     data['citation_id'] = Number(docId);
+
+    try { // Only load image_url if it's a valid URL
+      data['image_url'] = (new URL($('#image_url').val())).href;
+      document.getElementById('url-error-message').setAttribute('hidden', 'hidden');
+    } catch (_) { 
+      document.getElementById('url-error-message').removeAttribute('hidden');
+    }
+    
     return data;
 }
 

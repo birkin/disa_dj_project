@@ -40,6 +40,10 @@ def query_record( rec_id: str ) -> dict:
         'id': l.location.id } for l in rec.locations ]
     data['rec']['transcription'] = rec.transcription
     data['rec']['national_context'] = rec.national_context_id
+
+    log.debug( f'rec, ``{rec}``' )
+    data['rec']['image_url'] = rec.image_url
+
     data['rec']['record_type'] = {
         'label': rec.reference_type.name,
         'value': rec.reference_type.name,
@@ -86,6 +90,13 @@ def manage_reference_put( rec_id: str, payload: bytes, request_user_id: int ) ->
         rfrnc.reference_type_id = reference_type.id
         rfrnc.national_context_id = data['national_context']
         rfrnc.transcription = data['transcription']
+
+        if 'image_url' in data.keys():
+            log.debug( f'rfrnc.__dict__, ``{pprint.pformat(rfrnc.__dict__)}``' )
+            log.debug( 'found `image_url` key' )
+            rfrnc.image_url = data['image_url']
+            log.debug( f'rfrnc.__dict__ now, ``{pprint.pformat(rfrnc.__dict__)}``' )
+
         session.add( rfrnc )
         session.commit()
 
@@ -199,6 +210,12 @@ def manage_post( payload: bytes, request_user_id: int ) -> dict:
         rfrnc.reference_type_id = reference_type.id
         rfrnc.national_context_id = data['national_context']
         rfrnc.transcription = data['transcription']
+
+        if 'image_url' in data.keys():
+            log.debug( f'rfrnc.__dict__, ``{pprint.pformat(rfrnc.__dict__)}``' )
+            rfrnc.image_url = data['image_url']
+            log.debug( f'rfrnc.__dict__ now, ``{pprint.pformat(rfrnc.__dict__)}``' )
+
         session.add( rfrnc )
         session.commit()
 

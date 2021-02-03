@@ -12,13 +12,29 @@
         VIEW_OPTIONS_RADIO_BUTTONS_ID = 'view-options',
         MIN_TIME_BETWEEN_LUNR_INDEXES = 1000,
         ADULT_CHILD_CUTOFF_AGE = 16,
-        ENSLAVED_ROLES = ['Enslaved','Bought','Sold','Shipped','Arrived','Escaped','Captured','Emancipated'],
-        ENSLAVER_ROLES = ['Owner','Captor','Buyer','Seller','Master'],
+        ENSLAVED_ROLES = [
+          'Enslaved',
+          'Bought',
+          'Sold',
+          'Shipped',
+          'Arrived',
+          'Escaped',
+          'Captured',
+          'Emancipated'
+        ],
+        ENSLAVER_ROLES = [
+          'Owner',
+          'Captor',
+          'Buyer',
+          'Seller',
+          'Master'
+        ],
         ENSLAVEMENT_STATUS = {
           ENSLAVED: 'Enslaved',
           ENSLAVER: 'Enslaver',
           DEFAULT: 'Neither or unknown'
-        };
+        },
+        MAX_NUMBER_OF_ENTRIES = 100000;
 
   // Event handlers
 
@@ -63,6 +79,7 @@
         setName: getModalContentSetter('details-title-name', 'Text'),
         setDocTitle: getModalContentSetter('details-doc', 'Text'),
         setTranscription: getModalContentSetter('details-transcription', 'HTML'),
+        setItemImageLink: imgUrl => document.getElementById('item-facsimile').setAttribute('href', imgUrl || ''),
         clearDetailsTable: () => setDetailsTable(''),
         addToDetailsTable: (label, value) => {
           document.getElementById('details-table').innerHTML +=
@@ -84,9 +101,12 @@
       detailsModal.setId(id);
       // detailsModal.transcription(data.comments.replace(/http[^\s]+/,''));
       detailsModal.setTranscription(data.reference_data.transcription);
+      detailsModal.setItemImageLink(data.reference_data.image_url);
       detailsModal.setDocTitle(uncleanString(data.citation_data.display.replace(/http[^\s]+/,'')));
       detailsModal.clearDetailsTable();
       detailsModal.clearDocDetailsTable();
+
+      // Load referent data into details table
 
       const detailsTableContent = [
         ['Location', data.reference_data.all_locations],
@@ -101,6 +121,8 @@
         ['Age', data.age]
       ];
 
+      // Load relationships into details table
+
       data.relationships.forEach(r => {
         detailsTableContent.push([
           r.description.charAt(0).toUpperCase() + r.description.slice(1),
@@ -112,6 +134,8 @@
 
       detailsTableContent.filter(x => x[1])
         .forEach(([label, value]) => detailsModal.addToDetailsTable(label, value));
+
+      // Load document details into a table
 
       const docDetailsTable = [
         ['Item type', data.reference_data.reference_type],
@@ -278,6 +302,24 @@
         newEntry.all_races = newEntry.races.join(', ');
         newEntry.year = (new Date(entry.reference_data.date_db)).getFullYear();
 
+        // Some additional fields for Maiah's download
+
+        newEntry.vocation = newEntry.vocations.join(',');
+
+        newEntry.enslaved_by = newEntry.relationships.filter(
+          rel => (rel.description === 'enslaved by')
+        ).map(
+          rel => rel.related_referent_info.related_referent_first_name + ' ' +
+                 rel.related_referent_info.related_referent_last_name
+        ).join('; ');
+
+        newEntry.enslaved = newEntry.relationships.filter(
+          rel => (rel.description === 'owner of')
+        ).map(
+          rel => rel.related_referent_info.related_referent_first_name + ' ' +
+                  rel.related_referent_info.related_referent_last_name
+        ).join('; ');
+
         return newEntry;
       });
 
@@ -328,6 +370,12 @@
                 'Male': 'man',
                 'Other': 'individual',
                 '': 'individual'
+              },
+              'pronoun': {
+                'Female': { cap: 'She', nocap: 'she', be_conj: 'was'},
+                'Male': { cap: 'He', nocap: 'he', be_conj: 'was'},
+                'Other': { cap: 'They', nocap: 'they', be_conj: 'were'},
+                '': { cap: 'They', nocap: 'they', be_conj: 'were'}
               }
             },
             ageAsNumber = parseInt(entry.age.replaceAll(/[^\d]/g, '')),
@@ -335,7 +383,56 @@
             ageStatus = (age_number && age_number <= ADULT_CHILD_CUTOFF_AGE ? 'child' : 'adult'),
             age_text = (entry.age === '(not-recorded)' ? undefined : entry.age),
             race_text = (entry.all_races ? `, described as &ldquo;${entry.all_races}&rdquo;,` : ''),
-            year = entry.year;
+            year = entry.year,
+            proNounCap = sexDisplay.pronoun[entry.sex].cap,
+            toBe_conj = sexDisplay.pronoun[entry.sex].be_conj;
+
+
+      // GENERATE RELATIONSHIPS DESCRIPTION
+      
+      // console.log('RELATIONSHIPS:' + entry.relationships.map(r => r.description).join(','));
+      // console.log(`RELATIONSHIPS FOR ${nameDisplay} (${entry.relationships.length}):`, entry.relationships);
+
+      const relationshipsArrayHTML = entry.relationships.map(relationship => {
+        let html;
+        const relRefInfo = relationship.related_referent_info,
+              relRefName = [relRefInfo.related_referent_first_name, relRefInfo.related_referent_last_name]
+                            .filter(x => x.length)
+                            .join(' '),
+              relRefNameLink = `<a href='#' onclick='showDetails(${relRefInfo.related_referent_db_id})' 
+                                   title='Details about ${relRefName}'>${relRefName}</a>`;
+        if (relationship.description === 'enslaved by') {
+          html = `${toBe_conj} enslaved by ${relRefNameLink}`;
+        } else if (relationship.description === 'owner of') {
+          html = `enslaved ${relRefNameLink}`;
+        } else if (relationship.description === 'escaped from') {
+          html = `escaped from ${relRefNameLink}`;
+        } else if (relationship.description === 'sold by') {
+          html = `${toBe_conj} sold by ${relRefNameLink}`;
+        } else if (relationship.description === 'mother of' || relationship.description === 'father of') {
+          html = `had a child, ${relRefNameLink}`;
+        } else if (relationship.description === 'child of') {
+          html = `${toBe_conj} the child of ${relRefNameLink}`;
+        } else {
+          html = undefined;
+        }
+        return html;
+      }).filter(r => r !== undefined);
+
+      let relationshipsHTML;
+
+      if (relationshipsArrayHTML.length) {
+        const lastRel = relationshipsArrayHTML.pop();
+        relationshipsHTML = ' ' + proNounCap + ' ' +
+                            (relationshipsArrayHTML.length 
+                              ? `${relationshipsArrayHTML.join(', ')}, and ` 
+                              : '') +
+                            lastRel + '.';
+      } else {
+        relationshipsHTML = ''
+      }
+      
+      // COMPILE FINAL HTML
 
       const html = `<a  class="details-button float-right" onclick="showDetails(${entry.referent_db_id})"
                         title="Show source document and details for ${entry.all_name}">Details</a>` +
@@ -351,7 +448,9 @@
                    ' who lived' +
                    ` in ${locationDisplay}` +
                    (year ? ` in ${year}` : '') +
-                   '.';
+                   '.' + 
+                   relationshipsHTML;
+
       return html;
     }
 
@@ -360,6 +459,17 @@
       row.getElement().innerHTML = getPersonEntryHTML(entry);
     };
 
+    // Clean the cruft (mostly MSOffice markup) out of the transcription
+    //  before download
+
+    const transcriptionDownloadAccessor = function(value) {
+      const noStyle = value.replace(/<style>.*<\/style>/gis, ''),
+            noMSOfficeGarbage = noStyle.replace(/<([wmo]:\w+)[^>]*>.*?<\/\1[^>]*>/gis, ''),
+            noHTML = noMSOfficeGarbage.replace(/<[^>]+>/g, ''),
+            cleanSpaces = noHTML.replace(/(\s\s+|\n)/gs, ' ');
+      return cleanSpaces;
+    }
+
     const generateDropDownOptions = function(data, selectorFn) {
       const values = data.map(x => selectorFn(x)),
             uniqueValues = Array.from(new Set(values));
@@ -367,17 +477,18 @@
     }
 
     const columnDefinitions = [
+
       { title:'Name',      field:'all_name',          sorter:'string', headerFilter: true }, // mutator: combineNames_mutator },
       { title:'Last name', field:'name_last',         sorter:'string', headerFilter: true, visible: false },
       { title:'Status',    field:'enslavement_status',            sorter:'string', headerFilter: true,
-        headerFilter: 'select', headerFilterParams:{ values: ['Enslaved','Enslaver','Neither'] } },
+        headerFilter: 'select', headerFilterParams:{ values: ['Enslaved','Enslaver','Neither'] }, download: true },
       // { title:'Roles',    field:'roles',              sorter:'string', headerFilter: true },
       { title:'Sex',       field:'sex',   sorter:'string',
         headerFilter: 'select', headerFilterParams:{ values: ['Male','Female', 'Other'] } },
       { title:'Tribe',     field:'all_tribes', sorter:'string',
         headerFilter: 'select',
         headerFilterParams: {
-          values: [ "\"daughter of a Spanish Squaw\"", "Apalachee", "Blanco", "Blanea", "Bocotora",
+          values: [ '"daughter of a Spanish Squaw"', "Apalachee", "Blanco", "Blanea", "Bocotora",
                     "Bousora", "Boustora", "Chaliba", "Cherokee", "Codira", "Cookra", "Creek",
                     "Cuol", "Curero", "Eastern Pequot", "Eastern Tribes", "Mashantucket Pequot",
                     "Mohegan", "Naragansett", "Natchez", "Nidwa", "Nipmuc", "Noleva", "Nome Lackee",
@@ -401,7 +512,16 @@
       // { title:'Age',       field:'description.age',   sorter:'string', headerFilter: true },
       { title:'Location',  field:'reference_data.all_locations',     sorter:'string', headerFilter: true },
       { title:'Year',      field:'year',         sorter:'string', headerFilter: true },
-      { title:'Source transcription', field:'reference_data.transcription', visible: false, download: true }
+
+      // Some hidden fields just for downloading and general search
+
+      { title:'Source transcription', field:'reference_data.transcription', visible: false, download: true, accessorDownload:transcriptionDownloadAccessor },
+      { title:'Referent_ID', field:'referent_db_id', visible: false, download: true },
+      { title:'Vocation', field:'vocation', visible: false, download: true },
+      { title:'Age', field:'age', visible: false, download: true },
+      { title:'Reference_ID', field:'reference_data.reference_db_id', visible: false, download: true },
+      { title:'Enslaved_by', field:'enslaved_by', visible: false, download: true },
+      { title:'Enslaved', field:'enslaved', visible: false, download: true }
     ];
 
     const rowClick = function(_, row) {
@@ -420,8 +540,9 @@
       placeholder:'No records match these criteria<br />Try removing filters to broaden your search',
       pagination: 'local',
       paginationSize: 20,
-      paginationSizeSelector:[20,50,100],
+      paginationSizeSelector:[20,50,100,10000],
       columns: columnDefinitions,
+      downloadRowRange: 'active',
       renderComplete: () => {
         console.log('RENDER COMPLETE');
         document.querySelectorAll("*[data-filter-function]").forEach(
@@ -494,7 +615,12 @@
     window.table = table;
 
     document.getElementById('download-data')
-            .addEventListener('click', () => window.table.download('csv', `disa-data-export_${Date.now()}.csv`));
+            .addEventListener('click', () => {
+              const oldPageSize = window.table.getPageSize();
+              window.table.setPageSize(MAX_NUMBER_OF_ENTRIES);
+              window.table.download('csv', `disa-data-export_${Date.now()}.csv`);
+              window.table.setPageSize(oldPageSize);
+            });
 
     // This is called every time a user changes the content of the
     //   general search box

@@ -242,3 +242,7 @@ nav {
 	
 }
 
+a#item-facsimile[href=''] {
+  display: none;
+}
+
