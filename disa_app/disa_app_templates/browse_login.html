@@ -1,0 +1,122 @@
+{% extends "disa_app_templates/base.html" %}
+{% load staticfiles %}
+
+
+<!-- Patrick, I (bjd) based this on the `browse_tabulator.html` template,
+     & stripped out what didn't seem to be needed.  -->
+
+
+{# in <head> #}
+
+
+{% block header_other %}
+
+    <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+
+    <!-- {# <link rel="stylesheet" href="{% static 'css/browse_tabulator.css' %}" /> #} -->
+
+    <!-- Bootstrap -->
+
+    <link   rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+            crossorigin="anonymous" />
+
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+     -->
+
+    <!--
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+     -->
+
+    <!--
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+     -->
+
+    <!-- Tabulator library -->
+
+    <!-- Lunr -->
+
+    <!-- form css -->
+    <style type="text/css">
+        h1 {
+            margin-top: .6em;
+            /*margin-bottom: .5em;*/
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 3em;
+        }
+
+        div#two_boxes {
+            display: flex;
+        }
+
+        h2 {
+            margin-top: .6em;
+            /*margin-bottom: .5em;*/
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 2em;
+        }
+
+        form#non_shib_form {
+            padding-left: 1em;
+        }
+        p#username_field_label {
+            margin-top: 2em;
+            margin-bottom: .25em;
+        }
+        input#username_field_input {
+            margin-bottom: 1em;
+        }
+        p#password_field_label {
+            margin-bottom: .25em;
+        }
+        input#password_field_input {
+            margin-bottom: 2em;
+        }
+
+    </style>
+
+{% endblock header_other %}
+
+
+{# in <body> #}
+
+
+{% block header_options %}
+
+    {% comment %}  {# TODO: delete this block -- no need for this block -- the only option is browse-logout, and that's in browse_tabulator.html #}
+    {% if browse_logged_in %}
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'browse_logout_url' %}">browse-logout</a>
+    </li>
+    {% endif %}
+    {% endcomment %}
+
+{% endblock header_options %}
+
+
+{% block content %}
+
+    <form id="non_shib_form" action="{{ browse_url }}" method="POST">{% csrf_token %}
+        <h1>Welcome community-partner!</h1>
+        <h2>please login with your username and password</h2>
+        <p id="username_field_label">username:</p>
+        <input id="username_field_input" type="text" name="browse_login_username" value="{{ browse_login_username }}">
+        <p id="password_field_label">password:</p>
+        <input id="password_field_input" type="password" name="browse_login_password" value="{{ browse_login_password }}">
+        {% if browse_login_error %}
+            <p class="login_error">Problem: based on your login, it appears you're not authorized to use this database-browser.</p>
+            <!-- {# <p class="login_error">If you believe you should be able to login to this system, please contact {{ LOGIN_PROBLEM_EMAIL|urlize }} for assistance.</p> #} -->
+            <p class="login_error">If you believe you should be able to login to this system, please contact someone one at this <a href="{{ contact_url }}">{{ contact_url }}</a> web-page for assistance.</p>
+
+        {% endif %}
+        <br />
+        <input id="browse_login_button" type="submit" value="Log in">
+    </form>
+
+{% endblock content %}

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import logging, pprint
+import json, logging, pprint, uuid
 
+import requests
 from disa_app import settings_app
 from disa_app.lib import view_search_results_manager
 from disa_app.models import UserProfile
 from django.conf import settings as project_settings
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.test import Client
 from django.test import TestCase  # from django.test import SimpleTestCase as TestCase    ## TestCase requires db, so if you're not using a db, and want tests, try this
 from django.test.utils import override_settings
@@ -16,22 +18,41 @@ log = logging.getLogger(__name__)
 TestCase.maxDiff = 1000
 
 
+class Browse_Test( TestCase ):
+    """ Checks /browse/ responses. """
+
+    def test_json_response__logged_in_false(self):
+        """ Checks ?format=json param. """
+        response = self.client.get( '/browse/?format=json' )
+        self.assertEqual( 200, response.status_code )
+        resp_dct = json.loads( response.content )
+        returned_keys = list( resp_dct.keys() )
+        expected_keys = [ 'LOGIN_PROBLEM_EMAIL', 'browse_login_password', 'browse_login_username', 'contact_url' ]
+        self.assertEqual( expected_keys.sort(), returned_keys.sort() )
+
+
 class Client_Misc_Test( TestCase ):
     """ Checks miscellaneous url responses. """
+
+    def test_browse_url(self):
+        """ Checks '/browse/'. """
+        response = self.client.get( '/browse/' )  # project root part of url is assumed
+        self.assertEqual( 200, response.status_code )  # login landing page
+        self.assertEqual( True, b'login' in response.content )
 
     def test_root_url_no_slash(self):
         """ Checks '/root_url' (with no slash). """
         response = self.client.get( '' )  # project root part of url is assumed
         self.assertEqual( 302, response.status_code )  # permanent redirect
         redirect_url = response._headers['location'][1]
-        self.assertEqual(  '/browse/', redirect_url )
+        self.assertEqual(  '/info/', redirect_url )
 
     def test_root_url_slash(self):
         """ Checks '/root_url/' (with slash). """
         response = self.client.get( '/' )  # project root part of url is assumed
         self.assertEqual( 302, response.status_code )  # permanent redirect
         redirect_url = response._headers['location'][1]
-        self.assertEqual(  '/browse/', redirect_url )
+        self.assertEqual(  '/info/', redirect_url )
 
     @override_settings(DEBUG=True)
     def test_error_url_on_dev(self):

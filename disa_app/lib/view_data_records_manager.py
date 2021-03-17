@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import datetime, json, logging, os, pprint
+import datetime, json, logging, operator, os, pprint
 
 import sqlalchemy
 from disa_app import settings_app
@@ -48,6 +48,7 @@ def query_record( rec_id: str ) -> dict:
         'label': rec.reference_type.name,
         'value': rec.reference_type.name,
         'id':rec.reference_type.id }
+
     data['entrants'] = [ {
         'name_id': ent.primary_name.id,
         'first': ent.primary_name.first,
@@ -55,8 +56,25 @@ def query_record( rec_id: str ) -> dict:
         'id': ent.id,
         'person_id': ent.person_id,
         'roles': [ role.id for role in ent.roles ] } for ent in rec.referents ]
+
     data['rec']['header'] = '{}'.format(
         rec.reference_type.name or '').strip()
+
+    groups = [ {
+        'uuid': rfrnc_group.uuid,
+        'count': rfrnc_group.count,
+        'count_estimated': rfrnc_group.count_estimated,
+        'description': rfrnc_group.description,
+        'date_created': str( rfrnc_group.date_created ),
+        'date_modified': str( rfrnc_group.date_modified ),
+        'reference_id': rfrnc_group.reference_id } for rfrnc_group in rec.groups ]
+    # log.debug( f'initial-groups, ``{pprint.pformat(groups)}``' )
+    sorted_groups = sorted( groups, key=lambda k: k['date_modified'], reverse=True )
+    # log.debug( f'sorted-groups, ``{pprint.pformat(sorted_groups)}``' )
+    data['groups'] = {
+        'group_data': sorted_groups,
+        'group_sort_order': 'reverse date_modified'
+    }
 
     log.debug( f'data, ```{pprint.pformat(data)}```' )
     return data
@@ -242,7 +260,7 @@ def manage_reference_delete( rfrnc_id: str ) -> HttpResponseRedirect:  # or, muc
     session = make_session()
     existing = session.query( models_alch.Reference ).get( rfrnc_id )
     if existing:
-        cite = existing.citation
+        cite = existing.citation  # why did I get this?
         session.delete( existing )
         session.commit()
         # rsp = HttpResponseRedirect( redirect_url )  # if this doesn't work, i can just hit this url with requests and return the output.

@@ -12,19 +12,10 @@
 
 <style>
 
-
-    /*div.container-fluid {
-        margin-left: 4em;
-        width: 80%;
-        margin-right: -20em;
-    }*/
-
-
     p#document_header {
         font-style: italic;
         margin-top: .5em;
     }
-
 
     div.row {
         margin-top: -1em;
@@ -257,6 +248,13 @@
         display: none!important;
     }
 
+    caption {
+      caption-side:top;
+      font-weight: bold;
+      font-size: 120%;
+      font-style: italic;
+    }
+
     /* END of `People` scss work-around styling */
 
     span#people_explanation {
@@ -275,6 +273,44 @@
         display: flex!important;
     }
 
+    /* GROUP MAGAEMENT INTERFACE STYLES */
+
+    /* Hide edit controls unless in edit mode */
+
+    tr.group-edit-entry {
+      display: none;
+    }
+
+    tbody.group-edit-mode tr.group-edit-entry {
+      display: table-row;
+    }
+
+    tbody.group-edit-mode tr.group-display-entry {
+      display: none;
+    }
+
+    .groups-count {
+      width: 5em;
+      display: inline;
+    }
+
+    #groups-table label, #groups-table label input {
+      display: inline
+    }
+
+    /* Hide "saving ..." notification unless saving */
+
+    .group-save-state .saving-group {
+      display: none;
+    }
+
+    .group-save-state.group-currently-saving .saving-group {
+      display: initial;
+    }
+
+    .group-save-state.group-currently-saving .save-group {
+      display: none;
+    }
 
 
 </style>
@@ -299,12 +335,12 @@
             <h1 id="doc_header">{{ doc_display }}</h1>
             <a class="title_link" href="{% url 'edit_citation_url' doc_id %}">(edit document)</a>
         </div>
-<!--
-        <div class='col-md-1'>
-            {% comment %}<a href="{{ url_for('edit_citation', citeId=doc.id)}}">Back</a>{% endcomment %}
-            <a href="{% url 'edit_citation_url' doc_id %}">Back</a>
-        </div>
- -->
+        {% comment %}
+        <!--
+          <div class='col-md-1'>
+              <a href="{% url 'edit_citation_url' doc_id %}">Back</a>
+          </div> -->
+        {% endcomment %}
     </div>
     <hr id="post_document"> </hr>
 
@@ -359,11 +395,11 @@
                 <label for="image_url">Image<br />
                     <em class="small">
                       Paste the full URL of the image associated with this item. The image should be
-                      located in <a href="https://drive.google.com/drive/u/1/folders/1iEoQGjFo6ft-Vhzs9yaJytpt4KNmZv_L">this Google Drive folder</a>. 
+                      located in <a href="https://drive.google.com/drive/u/1/folders/1iEoQGjFo6ft-Vhzs9yaJytpt4KNmZv_L">this Google Drive folder</a>.
                       In Google Drive, right-click on the file and select "Get link," and in the pop-up, clock on "Copy link." Then paste into the field below.
                     </em></label>
                     <br />
-                <input class="form-control" id="image_url" 
+                <input class="form-control" id="image_url"
                        placeholder="https://drive.google.com/file/d/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/view?usp=sharing"></input>
                  <div class="alert alert-danger" id="url-error-message" role="alert" hidden>
                     Not a valid URL!
@@ -386,7 +422,17 @@
         </div>
         -->
         {% endcomment %}
-        <table class="table">
+
+        <div id="new_person_button" class="d-flex flex-row"
+              style="margin: 1em 0">
+            <button class="btn btn-primary" id="add-person">Add an individual</button>&nbsp;&nbsp;
+            <button class="btn btn-primary add-group-selector" id="add-group">Add a group</button>&nbsp;&nbsp;
+            <a class="btn btn-primary" href="{% url 'edit_relationships_url' rec_id %}">Identify connections between people</a>
+        </div>
+        <table class="table" id="entrants-table" hidden="hidden">
+            <caption>
+              Individuals
+            </caption>
             <thead>
                 <tr>
                   <th scope="col">ID</th>
@@ -399,11 +445,135 @@
             <tbody id="entrants">
             </tbody>
         </table>
-        <div id="new_person_button" class="d-flex flex-row-reverse">
-            <button class="btn btn-primary" id="add-person">Add a person</button>&nbsp;&nbsp;
-            {% comment %}<a class="btn btn-primary" href="{{ url_for('edit_relationships', recId=rec.id)}}">Identify connections between people</a>{% endcomment %}
-            <a class="btn btn-primary" href="{% url 'edit_relationships_url' rec_id %}">Identify connections between people</a>
+      </div>
+
+      <div id="group_component">
+
+        <!-- Groups delete confirmation modal -->
+
+        <div class="modal fade" id="confirmDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                  Please confirm that you want to delete this group
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <!--
+              <div class="modal-body">
+                No turning back!
+              </div> -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="confirmDelete-no">Cancel delete</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmDelete-yes">YES, delete!</button>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Groups table -->
+
+        <table class="table" id="groups-table" hidden="hidden">
+            <caption>
+              Groups
+              {% comment %} <!-- NOT SURE THIS IS NECESSARY (uncomment to reactivate)
+              <button class="btn btn-primary btn-sm add-group-selector float-right">Add new</button> -->
+              {% endcomment %}
+            </caption>
+            <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Count</th>
+                  <th scope="col"></th>
+                </tr>
+            </thead>
+        </table>
+
+        <!-- Groups entry template -->
+
+        <template id="groups-template">
+          <tbody>
+            <!-- Group data row when in edit mode -->
+            <tr class="group-edit-entry">
+              <!-- Group ID -->
+              <td>
+                <a class="groups-id" href="" data-uuid=""
+                   title="Copy group ID to clipboard"></a>
+              </td>
+              <!-- Group description -->
+              <td>
+                <textarea class="form-control group-input groups-description"
+                      type="text" placeholder="Description from source"></textarea>
+              </td>
+              <td>
+                  <!-- Group count -->
+                  <input class="form-control group-input groups-count"
+                         type="number" value="2" min="2"></input>
+                  <!-- Group count estimated checkbox -->
+                  <label>
+                      <input class="group-input groups-count-estimated"
+                      type="checkbox"></input>
+                      Estimated
+                  </label>
+              </td>
+              <td class="group-controls">
+                <span class="group-save-state">
+                  <!-- Group approve change button -->
+                  <button class="btn btn-primary save-group entrant-ctl">
+                    Save
+                  </button>
+                  <!-- Group in-process save button -->
+                  <button class="btn btn-primary saving-group entrant-ctl">
+                    Saving &hellip;
+                  </button>
+                </span>
+                  <!-- Group undo change button -->
+                  <button class="btn btn-secondary cancel-group entrant-ctl"
+                          title="Cancel current changes">
+                    Undo changes
+                  </button>
+                  <!-- Group delete button -->
+                  <button class="btn btn-danger del-group group-ctl" title="Delete entry for this person"
+                          data-toggle="modal" data-target="#confirmDelete">
+                    Delete group
+                  </button>
+              </td>
+            </tr>
+            <!-- Group data row when in display mode -->
+            <tr class="group-display-entry">
+                <!-- Group ID -->
+                <td>
+                  <a  class="groups-id" href="" data-uuid=""
+                      title="Copy group ID to clipboard"></a>
+                </td>
+                <!-- Group description -->
+                <td>
+                  <textarea class="form-control group-input groups-description click-to-edit-group"
+                            type="text" readonly="true" placeholder="Description from source"></textarea>
+                </td>
+                <td>
+                    <!-- Group count -->
+                    <input class="form-control group-input groups-count click-to-edit-group"
+                           type="number" readonly="true"></input>
+                    <!-- Group count estimated checkbox -->
+                    <label>
+                      <input class="group-input groups-count-estimated click-to-edit-group"
+                      type="checkbox" readonly="true"></input>
+                      Estimated
+                  </label>
+                </td>
+                <td class="group-controls">
+                  <button class="btn btn-primary edit-group group-ctl click-to-edit-group">
+                    Edit
+                  </button>
+                </td>
+            </tr>
+          </tbody>
+        </template>
     </div>
     {% endif %}
 </div>
@@ -417,18 +587,28 @@
 
 <script id="addl_loc_id" type="application/json">{{ addl_loc|safe }}</script>
 
-<!-- A test of the js far below that accesses this json
-     The idea is from <https://docs.djangoproject.com/en/2.1/ref/templates/builtins/#json-script>,
-     ...not yet available in Django 1.11 -->
-<!--
-<script type="text/javascript">
-    var zzz = JSON.parse( document.getElementById('towns_id').textContent );
-    console.log( 'zzz...' );
-    console.log( zzz );
-</script>
- -->
 
 <script>
+
+// onlick handler for ID links -- copies URL (including UUID)
+//  to clipboard
+
+function copyUUIDtoClipboard(e) {
+  console.log( "initial built url, ", e.target.href );
+  e.preventDefault();
+  navigator.permissions.query({name: 'clipboard-write'}).then(result => {
+    if (result.state == 'granted' || result.state == 'prompt') {
+      navigator.clipboard.writeText(e.target.href);
+      const oldText = e.target.innerHTML;
+      e.target.innerHTML = 'ID copied';
+      window.setTimeout(
+        () => e.target.innerHTML = oldText,
+        2000
+      );
+    }
+  });
+}
+
 var getDocumentId = function () {
     {% comment %} var doc_id = "{{ doc.id or '' }}"; {% endcomment %}
     {% if doc_id %}
@@ -469,12 +649,12 @@ var updateLocationInputs = function (locsArray) {
 
 var setInputValues = function(recData) {
 
-    /*  
-      Updates input fields from readRecordData() api call 
-      when initializing form, and from ajax-update from when 
+    /*
+      Updates input fields from readRecordData() api call
+      when initializing form, and from ajax-update from when
       data is updated.
 
-      Called by initializeForm() and updateRecordData() 
+      Called by initializeForm() and updateRecordData()
     */
 
     console.log( "in setInputValues; will update item fields." )
@@ -495,7 +675,7 @@ const updateImageUrl = function(input, data) {
     try {
       const validUrl = (new URL(new String(data))).href;
       input.value = validUrl;
-    } catch (_) { 
+    } catch (_) {
       console.error(`WARNING: provided image URL ${dataAsString} is not valid`);
     }
   }
@@ -565,10 +745,10 @@ var collectInputValues = function(docId) {
     try { // Only load image_url if it's a valid URL
       data['image_url'] = (new URL($('#image_url').val())).href;
       document.getElementById('url-error-message').setAttribute('hidden', 'hidden');
-    } catch (_) { 
+    } catch (_) {
       document.getElementById('url-error-message').removeAttribute('hidden');
     }
-    
+
     return data;
 }
 
@@ -614,13 +794,281 @@ var initializeForm = function (data, tags, editUrl) {
     console.log( "in initializeForm(); editUrl: ", editUrl );
     setFormHeader(data['rec']);
     setInputValues(data['rec']);
-    for (var i=0; i < data['entrants'].length; i++ ) {
+
+    // Populate entrants table
+
+    if (data['entrants'].length > 0) {
+      document.getElementById('entrants-table').hidden = false;
+      for (var i=0; i < data['entrants'].length; i++ ) {
         console.log( "in initializeForm(); about to call addEntrantInput() with data: ", data['entrants'][i] );
         addEntrantInput(
-            $('#entrants'), data['entrants'][i], tags );
+          $('#entrants'), data['entrants'][i], tags
+        );
+      }
     }
+
     initiateEntrantWorkflow( $('#entrant_component'), editUrl );
+
+    // GROUPS - START
+
+    // Populate groups table
+    //  Unhide groups table if there are entries
+
+    document.getElementById('groups-table').hidden = !(data.groups.group_data.length > 0);
+
+    const groupListingTemplate = document.getElementById('groups-template'),
+          groupListingContainer = document.getElementById('groups-table');
+
+    // Function to create a group listing in DOM
+    //  Make a copy of the template, populate it
+    //  Add event listeners for buttons
+    //  Append populated template-copy to DOM
+
+    function createGroupListingFromData(groupEntry) {
+
+      const groupListing = groupListingTemplate.content.cloneNode(true);
+
+      // Populate fields with values
+
+      groupListing.querySelectorAll('.groups-id').forEach(
+        groupIdField => {
+          // groupIdField.href=`/data/reference_group/${groupEntry.uuid}/`;
+          groupIdField.href = "{% url 'data_group_url' 'STUB' %}".replace( 'STUB', groupEntry.uuid );
+          groupIdField.innerHTML = groupEntry.uuid ? groupEntry.uuid.substr(0,7) : '';
+          groupIdField.setAttribute('data-uuid', groupEntry.uuid || '');
+          groupIdField.addEventListener('click', copyUUIDtoClipboard);
+        }
+      );
+
+      groupListing.querySelectorAll('.groups-description').forEach(
+        groupDescriptionField => groupDescriptionField.value = groupEntry.description
+      );
+
+      groupListing.querySelectorAll('.groups-count').forEach(
+        groupCountField => groupCountField.value = groupEntry.count
+      );
+
+      groupListing.querySelectorAll('.groups-count-estimated').forEach(
+        groupCountEstimatedCheckbox => groupCountEstimatedCheckbox.checked = groupEntry.count_estimated
+      );
+
+      // Set up event handlers
+
+      // First, gather references to form
+
+      const ENTRY_CONTAINER_CLASS_NAMES = ['group-display-entry', 'group-edit-entry'],
+            FIELD_CLASS_NAMES = ['groups-description', 'groups-count', 'groups-count-estimated', 'groups-id'];
+
+      function gatherEntries(rowAcc, rowClassName) {
+        let fieldsHash = {};
+        FIELD_CLASS_NAMES.forEach(fieldClassName => {
+          fieldsHash[fieldClassName] = groupListing.querySelector(`.${rowClassName} .${fieldClassName}`)
+        });
+        rowAcc[rowClassName] = fieldsHash;
+        return rowAcc;
+      }
+
+      // fields holds references to DOM nodes by classname
+
+      const fields = ENTRY_CONTAINER_CLASS_NAMES.reduce(gatherEntries, {});
+
+      console.log('FIELDS', fields);
+
+      const tbodyContainer = groupListing.querySelector('tbody'),
+            editRow = groupListing.querySelector('.group-edit-entry'),
+            savingStateClassList = groupListing.querySelector('.group-save-state').classList,
+            setIsCurrentlySaving = (s) => savingStateClassList[s ? 'add' : 'remove']('group-currently-saving');
+
+      // two functions to copy values to/from the edit and display copies of
+      //   the group form
+
+      function copyFromDisplayToEdit(fieldClassName, prop) {
+        fields[`group-edit-entry`][fieldClassName][prop] = fields[`group-display-entry`][fieldClassName][prop];
+      }
+
+      function copyFromEditToDisplay(fieldClassName, prop) {
+        fields[`group-display-entry`][fieldClassName][prop] = fields[`group-edit-entry`][fieldClassName][prop];
+      }
+
+      // onClick for group edit button
+
+      function onEditClick(event) {
+        tbodyContainer.classList.add('group-edit-mode');
+        copyFromDisplayToEdit('groups-description', 'value');
+        copyFromDisplayToEdit('groups-count', 'value');
+        copyFromDisplayToEdit('groups-count-estimated', 'checked');
+      };
+
+      groupListing.querySelectorAll('.click-to-edit-group').forEach(
+        clickToEdit => clickToEdit.addEventListener('click', onEditClick)
+      );
+
+      // onClick for group cancel edit button
+
+      groupListing.querySelector('.cancel-group').addEventListener('click', (event) => {
+        tbodyContainer.classList.remove('group-edit-mode');
+      });
+
+      // onClick for group save edit button:
+      //  send the data to the server, then copy data from edit form to display form
+      //  and hide the edit form
+
+      groupListing.querySelector('.save-group').addEventListener('click', (event) => {
+
+        setIsCurrentlySaving(true);
+        const onSaveComplete = (uuid) => {
+
+          if (!fields['group-edit-entry']['groups-id'].getAttribute('data-uuid')) {
+            [fields['group-edit-entry'], fields['group-display-entry']].forEach(entry => {
+              entry['groups-id'].innerText = uuid.substr(0,7);
+              entry['groups-id'].setAttribute('data-uuid', uuid);
+              entry['groups-id'].href = `/data/reference_group/${uuid}`;
+            });
+          }
+
+          copyFromEditToDisplay('groups-description', 'value');
+          copyFromEditToDisplay('groups-count', 'value');
+          copyFromEditToDisplay('groups-count-estimated', 'checked');
+          tbodyContainer.classList.remove('group-edit-mode');
+          setIsCurrentlySaving(false);
+        }
+        saveGroup(fields, onSaveComplete);
+      });
+
+      // onClick handler for group delete button
+
+      groupListing.querySelector('.del-group').addEventListener('click', event => {
+        const onDeleteComplete = () => {
+          console.log('DELETED, now hide', tbodyContainer);
+          tbodyContainer.hidden = true;
+        };
+        deleteGroup(fields, onDeleteComplete);
+      });
+
+      // Append to document
+
+      groupListingContainer.appendChild(groupListing);
+    } // End createGroupListingFromData()
+
+    // Create a row in table for each entry in the data
+    data.groups.group_data
+      .sort((a, b) => (a.date_created < b.date_created) ? -1 : 1)
+      .forEach(
+        groupData => createGroupListingFromData(groupData)
+      );
+
+    // onClick for new group
+
+    const NEW_GROUP_DATA = {
+      description: null,
+      count: 0,
+      countEstimated: false
+    };
+
+    Array.from(document.getElementsByClassName('add-group-selector')).forEach(
+      addGroupButton => addGroupButton.addEventListener(
+        'click',
+        () => {
+          document.getElementById('groups-table').hidden = false;
+          createGroupListingFromData(NEW_GROUP_DATA);
+          // @todo get into edit mode
+        }
+      )
+    );
 }
+
+// const csrf_token = '{{ csrf_token }}';
+
+// Save group to server
+
+function saveGroup(fields, onSaveComplete) {
+
+  const saveData = fields['group-edit-entry'],
+        uuid = saveData['groups-id'].getAttribute('data-uuid'),
+        isNewGroup = (uuid === ''),
+        groupData = {
+          count: parseInt(saveData['groups-count'].value),
+          count_estimated: saveData['groups-count-estimated'].checked,
+          description: saveData['groups-description'].value,
+          reference_id: parseInt(getRecId())
+        };
+
+  // const groupApiUrl = isNewGroup ? '/data/reference_group/new/' : `/data/reference_group/${uuid}/`;
+  // console.log( "groupApiUrl, ", groupApiUrl );
+
+  let groupApiUrl = "init";
+  if (isNewGroup) {
+    groupApiUrl = "{% url 'data_group_url' 'new' %}";
+  } else {
+    groupApiUrl = "{% url 'data_group_url' 'STUB' %}".replace( 'STUB', uuid );
+  }
+  console.log( "saveGroup() groupApiUrl, ", groupApiUrl );
+
+  console.log('SAVE', {
+    method: (isNewGroup ? 'POST' : 'PUT'),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify(groupData),
+    credentials: 'same-origin'
+  });
+
+  fetch(groupApiUrl, {
+    method: (isNewGroup ? 'POST' : 'PUT'),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify(groupData),
+    credentials: 'same-origin'
+  }).then(response => {
+    response.json().then(data => {
+      // console.log(data.response.group_data.uuid);
+      onSaveComplete(data.response.group_data.uuid);
+    });
+  });
+}
+
+function deleteGroup(fields, onDeleteComplete) {
+
+  const uuid = fields['group-edit-entry']['groups-id'].getAttribute('data-uuid'),
+        // groupApiUrl = `/data/reference_group/${uuid}/`,
+        confirmDeleteButton = document.getElementById('confirmDelete-yes'),
+        cancelDeleteButton = document.getElementById('confirmDelete-no');
+
+  // const uuid = fields['group-edit-entry']['groups-id'].getAttribute('data-uuid'),
+  //       groupApiUrl = `/data/reference_group/${uuid}/`,
+  //       confirmDeleteButton = document.getElementById('confirmDelete-yes'),
+  //       cancelDeleteButton = document.getElementById('confirmDelete-no');
+
+  const groupApiUrl = "{% url 'data_group_url' 'STUB' %}".replace( 'STUB', uuid );
+  console.log( "deleteGroup() groupApiUrl, ", groupApiUrl );
+
+  const onConfirmDelete = function() {
+    console.log('REALLY REALLY DELETING ' + groupApiUrl);
+
+    fetch(groupApiUrl, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: '',
+      credentials: 'same-origin',
+    }).then(onDeleteComplete);
+  }
+
+  // Clear all event listeners out of confirm button
+
+  const confirmDeleteButtonClone = confirmDeleteButton.cloneNode(true);
+  confirmDeleteButton.parentNode.replaceChild(confirmDeleteButtonClone, confirmDeleteButton);
+  confirmDeleteButtonClone.addEventListener('click', onConfirmDelete, true);
+
+
+}
+
+// GROUPS - END
 
 var readRecordData = function(recId, roles, edit_url) {
     /*  Bridge to main controller (initializeForm).
@@ -647,6 +1095,7 @@ var updateRecordData = function(recId, docId) {
 
     var rec_id = recId;
     var rec_data_api = "{% url 'data_record_url' rec_id %}";
+    console.log( "in updateRecordData(); rec_data_api, ", rec_data_api );
 
     console.log( "rec_id: ", rec_id );
     {% if rec_id %}
@@ -660,6 +1109,7 @@ var updateRecordData = function(recId, docId) {
     console.log( "collectInputValues data: ", data );
     var method = (recId ? "PUT" : "POST");
     console.log( "method: ", method );
+
     $.ajax({
         type: method,
         url: rec_data_api,
@@ -734,32 +1184,41 @@ var makeEntrantEditable = function ($container, entId) {
     $save_btn = $('<button/>', {
         'class': 'btn btn-primary save-entrant entrant-ctl',
         'save-entrant-id': entId,
-        'title': 'Save changes' });
-    $save_span = $('<span/>', {'class': 'fas fa-check-circle'});
+        'title': 'Save changes',
+        'text': 'Save' });
+    // $save_span = $('<span/>', {'class': 'fas fa-check-circle'});
 
     $del_btn = $('<button/>', {
         'class': 'btn btn-danger del-entrant entrant-ctl',
         'del-entrant-id': entId,
-        'title': 'Delete entry for this person' });
-    $del_span = $('<span/>', {'class': 'fas fa-times-circle'});
+        'title': 'Delete entry for this person',
+        'text': 'Delete individual' });
 
-    $save_btn.append($save_span);
-    $del_btn.append($del_span);
+    // $del_span = $('<span/>', {'class': 'fas fa-times-circle'});
+
+    //$save_btn.append($save_span);
+    //$del_btn.append($del_span);
 
     $active.find($('.form-control')).prop('disabled', false);
-    $active.find($('.entrant-controls')).append($save_btn).append($del_btn);
 
     if (entId !== 'new') {
         $cancel_btn = $('<button/>', {
             'class': 'btn btn-secondary cancel-entrant entrant-ctl',
-            'title': 'Cancel current changes'
+            'title': 'Cancel current changes',
+            'text': 'Undo changes'
         });
-        $cancel_span = $('<span/>', {'class': 'fas fa-undo'});
-
-        $cancel_btn.append($cancel_span);
+        //$cancel_span = $('<span/>', {'class': 'fas fa-undo'});
+        //$cancel_btn.append($cancel_span);
 
         $active.find($('.entrant-controls')).append($cancel_btn)
+    } else {
+      $cancel_btn = $('');
     }
+
+    $active.find($('.entrant-controls'))
+           .append($save_btn)
+           .append($cancel_btn)
+           .append($del_btn);
 
     return $container;
 }
@@ -829,6 +1288,9 @@ var updateEntrant = function($container, entId, entData, editUrl) {
         // ent_data_api = ent_data_api + entId;
         method = 'PUT';
     }
+
+    console.log('DATA BEING SUBMITTED', JSON.stringify(entData));
+
     $.ajax({
         type: method,
         url: ent_data_api,
@@ -1032,19 +1494,6 @@ $( document ).ready(function() {
       yearRange: "1491:2000"
     });
 
-    // $("#rec_update").on('click', function(e) {
-    //     console.log( "starting rec_update handling" );
-    //     e.preventDefault();
-    //     if ($(this).attr('data-clicked') == 1) {
-    //         $(this).attr('data-clicked', 0);
-    //         return true;
-    //     } else {
-    //         $(this).attr('data-clicked', 1);
-    //         tinymce.triggerSave();
-    //         updateRecordData(rec_id, doc_id);
-    //     }
-    // });
-
     $("#rec_update").on('click', function(e) {
         console.log( "starting rec_update handling" );
         e.preventDefault();
@@ -1065,12 +1514,24 @@ $( document ).ready(function() {
     });
 
     $('#entrant_component').on('click', '#add-person', function(e) {
+        console.log( "handling click of `add-person`" );
+        document.getElementById('entrants-table').hidden = false;
         e.preventDefault();
         var data = { 'id': 'new', 'first': '',
             'last': '', 'roles': [], 'name_id': 'name' };
         addEntrantInput( $('#entrants'), data, roles);
         deactivateEntrantEditing( $('#entrant_component') );
         makeEntrantEditable( $('#entrants'), 'new');
+    });
+
+    $('#entrant_component').on('click', '#add-group', function(e) {
+        console.log( "handling click of `add-group`" );
+        // document.getElementById('entrants-table').hidden = false;
+        // e.preventDefault();
+        // var data = { 'id': 'new', 'first': '', 'last': '', 'roles': [], 'name_id': 'name' };
+        // addEntrantInput( $('#entrants'), data, roles);
+        // deactivateEntrantEditing( $('#entrant_component') );
+        // makeEntrantEditable( $('#entrants'), 'new');
     });
 
     $('#entrant_component').on('click', '.edit-entrant', function(e) {
@@ -1102,9 +1563,10 @@ $( document ).ready(function() {
     });
 
     $('#entrant_component').on('click', '.save-entrant', function(e) {
+        console.log( "handling save-entrant" );
+
         e.preventDefault();
         var ent_id = $( this ).attr('save-entrant-id');
-
         var data = getEntrantData($('#entrant_component'), ent_id, rec_id);
         updateEntrant( $('#entrant_component'), ent_id, data, details_url );
     });

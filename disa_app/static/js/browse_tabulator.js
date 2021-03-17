@@ -34,7 +34,9 @@
           ENSLAVER: 'Enslaver',
           DEFAULT: 'Neither or unknown'
         },
-        MAX_NUMBER_OF_ENTRIES = 100000;
+        MAX_NUMBER_OF_ENTRIES = 100000,
+        REF_COUNT_ELEM_ID = 'ref-count',
+        ITEM_COUNT_ELEM_ID = 'item-count';
 
   // Event handlers
 
@@ -244,6 +246,14 @@
 
       console.log('JSON response', response);
 
+      // Update count stats
+
+      document.getElementById(REF_COUNT_ELEM_ID).innerText = response.meta.referents_count;
+      document.getElementById(ITEM_COUNT_ELEM_ID).innerText = response.referent_list.reduce(
+        (setOfRefs, currRef) => setOfRefs.add(currRef.reference_data.reference_db_id),
+        new Set()
+      ).size;
+
       // Create an 'all_names' field
       // Create an 'all_locations' field
       // Clean up data for apostrophes, ampersands
@@ -331,9 +341,12 @@
       window.disa.lunrIndex = lunrIndex; // For testing
       searchAgainstIndex(); // Initialize results array for general search
 
-      // Save this data for later & return to Tabulator
+      // Save this data for later
 
       window.disa.jsonData = processedResponse;
+
+      // Return data to Tabulator
+
       return processedResponse;
     }
 
@@ -387,12 +400,8 @@
             proNounCap = sexDisplay.pronoun[entry.sex].cap,
             toBe_conj = sexDisplay.pronoun[entry.sex].be_conj;
 
-
       // GENERATE RELATIONSHIPS DESCRIPTION
       
-      // console.log('RELATIONSHIPS:' + entry.relationships.map(r => r.description).join(','));
-      // console.log(`RELATIONSHIPS FOR ${nameDisplay} (${entry.relationships.length}):`, entry.relationships);
-
       const relationshipsArrayHTML = entry.relationships.map(relationship => {
         let html;
         const relRefInfo = relationship.related_referent_info,
@@ -594,8 +603,6 @@
       table.destroy();
       tableContainer.classList.toggle(BIO_THEME_CLASSNAME, bioOption);
 
-      let t = document.getElementById('data-display');
-
       table = new Tabulator(
         '#data-display',
         Object.assign({},
@@ -661,10 +668,10 @@
     }
   });
 
-})() // Closing IIFE
+})() // Close IIFE
 
 
-/* DATA STRUCTURE
+/* DATA STRUCTURE FOR REFERENCE
 
 {
   "referent_db_id": 317,

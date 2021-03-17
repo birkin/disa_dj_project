@@ -1,6 +1,10 @@
 {% extends "disa_app_templates/base.html" %}
 {% load staticfiles %}
 
+
+{# in <head> #}
+
+
 {% block header_other %}
 <link rel="shortcut icon" type="image/ico"
     href="favicon.ico" />
@@ -32,7 +36,30 @@
 
 <script src="https://unpkg.com/lunr/lunr.js"></script>
 
-{% endblock %}
+{% endblock header_other %}
+
+
+{# in <body> #}
+
+
+{% block header_options %}
+
+    {% if user_is_authenticated %}
+        {% comment %}
+        <li class="nav-item">
+            <a class="nav-link text-white" href="{% url 'browse_logout_url' %}">FOO</a>
+        </li>
+        {% endcomment %}
+    {% else %}
+        {% if browse_logged_in %}
+        <li class="nav-item">
+            <a class="nav-link text-white" href="{% url 'browse_logout_url' %}">browse-logout</a>
+        </li>
+        {% endif %}
+    {% endif %}
+
+{% endblock header_options %}
+
 
 {% block content %}
 
@@ -102,15 +129,18 @@
             preliminary, experimental search portal of the
             <a href="http://indigenousslavery.org">Database of
             Indigenous Slavery in the Americas</a>, which
-            allows you to search the approximately 3,000
-            individuals drawn from archival records regarding
-            the enslavement of indigenous populations in the
-            Americas, from the 17th to the 19th centuries.
+            allows you to search 
+            <span id="ref-count" class="badge badge-secondary"></span>
+            references to individuals drawn from 
+            <span id="item-count" class="badge badge-secondary"></span> 
+            archival records regarding the enslavement of indigenous 
+            populations in the Americas, from the 17<sup>th</sup> to the 
+            19<sup>th</sup> centuries.
         </p>
         <div class="col-6">
             <p>
                 As you explore, please understand that <em>this
-                database is under development and may
+                database is currently under development and may
                 contain errors, and will continuously be
                 updated</em>.
             </p>
@@ -178,7 +208,8 @@
         value="{{ info_image_url }}" />
 </div>
 
-{% endblock %}
+{% endblock content %}
+
 
 {% block scripts%}
     <script src="{% static 'js/browse_tabulator.js' %}"></script>
