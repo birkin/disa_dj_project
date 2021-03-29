@@ -64,12 +64,10 @@ def manage_generation():
 
     ## groups =========================
 
-    groups = session.query( models_alch.Group ).all()
-
-    log.debug( f'groups count, ``{len(groups)}``' )
-    # output_dct['meta']['groups_count'] = len( groups )
+    groups = session.query( models_alch.Group ).order_by( 'reference_id', 'date_created' )
 
     group_lst = []
+    reference_ids = []
     for grp in groups:
         assert type(grp.uuid) == str
         assert type(grp.count) == int
@@ -88,30 +86,21 @@ def manage_generation():
             'reference_db_id': grp.reference_id
         }
         group_lst.append( grp_dct )
+        if grp.reference_id not in reference_ids:
+            reference_ids.append( grp.reference_id )
 
-    reference_dct = {}
-    for grp in group_lst:
-        reference_db_id = grp['reference_db_id']
-        if reference_db_id in reference_dct.keys():
-            reference_dct[reference_db_id].append( grp )
-        else:
-            reference_dct[reference_db_id] = [ grp ]
+    output_dct['meta']['groups__total_count'] = len( group_lst )
+    output_dct['meta']['groups__reference_count'] = len( reference_ids )
+    output_dct['groups'] = group_lst
 
-    reference_list = []
-    for (key, val) in reference_dct.items():
-        updated_dct = {
-            'refrence_db_id': key,
-            'groups': val
-        }
-        reference_list.append( updated_dct )
+    ## other =========================
 
-    output_dct['groups_by_reference'] = reference_list
-    output_dct['meta']['groups__total_count'] = len( groups )
-    output_dct['meta']['groups__reference_count'] = len( reference_list )
+    output_dct['meta']['date_produced'] = str( start_time )
+    output_dct['meta']['elapsed_time'] = str( datetime.datetime.now() - start_time )
 
     ## return
 
-    log.debug( f'output_dct, ``{pprint.pformat(output_dct)}``' )
+    # log.debug( f'output_dct, ``{pprint.pformat(output_dct)}``' )
     return output_dct
 
     ## end manage_generation()
@@ -132,7 +121,8 @@ def initialize_output() -> tuple:
         Called by manage_generation() controller. """
     initialized_output_dct = {
         'meta': {
-            'date_produced': str( datetime.datetime.now() ),
+            'date_produced': None,
+            'elapsed_time': None,
             'referents_count': None,
             'excluded_referents_count': None,
             'groups__total_count': None,
@@ -140,7 +130,7 @@ def initialize_output() -> tuple:
         },
         'referent_list': [
         ],
-        'groups_by_reference': [
+        'groups': [
         ]
     }
     initialized_referent_dct = {

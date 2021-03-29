@@ -136,12 +136,6 @@ def source( request, src_id ):
     log.debug( f'redirect_url, ```{redirect_url}```' )
     return HttpResponseRedirect( redirect_url )
 
-# def source( request, src_id ):
-#     log.debug( f'\n\nstarting source(), with src_id, `{src_id}`' )
-#     redirect_url = reverse( 'edit_record_url', kwargs={'rec_id': src_id} )
-#     log.debug( f'redirect_url, ```{redirect_url}```' )
-#     return HttpResponseRedirect( redirect_url )
-
 
 @shib_login
 def editor_index( request ):
@@ -168,23 +162,6 @@ def editor_index( request ):
     else:
         resp = render( request, 'disa_app_templates/document_index.html', context )
     return resp
-
-
-# @shib_login
-# def editor_index( request ):
-#     ## TODO: rename this url from `/editor/` to `/citations/`?
-#     log.debug( '\n\nstarting editor_index()' )
-#     log.debug( 'slept' )
-#     user_id = request.user.profile.old_db_id if request.user.profile.old_db_id else request.user.id
-#     context: dict = view_editor_index_manager.query_documents( request.user.username, user_id )
-#     if request.user.is_authenticated:
-#         context['user_is_authenticated'] = True
-#         context['user_first_name'] = request.user.first_name
-#     if request.GET.get('format', '') == 'json':
-#         resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
-#     else:
-#         resp = render( request, 'disa_app_templates/document_index.html', context )
-#     return resp
 
 
 def search_results( request ):
@@ -294,7 +271,6 @@ def user_pass_handler( request ):
     return resp
 
 
-
 # ===========================
 # editor urls
 # ===========================
@@ -336,25 +312,6 @@ def edit_person( request, rfrnt_id=None ):
     return resp
 
 
-# @shib_login
-# def edit_record( request, rec_id=None ):
-#     """ Url: '/editor/records/<rec_id>/' -- 'edit_record_url' """
-#     log.debug( f'\n\nstarting edit_record(), with rec_id, `{rec_id}`' )
-#     if rec_id:  # normal case
-#         log.debug( 'handling rec_id exists' )
-#         context: dict = view_edit_record_manager.prep_rec_id_context( rec_id, request.user.first_name, bool(request.user.is_authenticated) )
-#     elif request.GET.get('doc_id', None):
-#         log.debug( 'handling doc_id parameter exists' )
-#         context: dict = view_edit_record_manager.prep_doc_id_context( request.GET.get('doc_id', None), request.user.first_name, bool(request.user.is_authenticated) )
-#     else:
-#         log.debug( f'strange, not found; request.__dict__, ``{pprint.pformat(request.__dict__)}``' )
-#         return HttpResponseNotFound( '404 / Not Found' )
-#     if request.GET.get('format', '') == 'json':
-#         resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
-#     else:
-#         resp = render( request, 'disa_app_templates/record_edit.html', context )
-#     return resp
-
 @shib_login
 def edit_record( request, rec_id=None ):
     """ Url: '/editor/records/<rec_id>/' -- 'edit_record_url' """
@@ -384,22 +341,6 @@ def edit_record_w_recid( request, rec_id=None ):
     else:
         resp = render( request, 'disa_app_templates/record_edit.html', context )
     return resp
-
-
-## -- original that seemed to have been working for a while...
-# @shib_login
-# def edit_record( request, rec_id=None ):
-#     """ Url: '/editor/records/<rec_id>/' -- 'edit_record_url' """
-#     log.debug( f'\n\nstarting edit_record(), with rec_id, `{rec_id}`' )
-#     if rec_id:
-#         context: dict = view_edit_record_manager.prep_rec_id_context( rec_id, request.user.first_name, bool(request.user.is_authenticated) )
-#     else:
-#         context: dict = view_edit_record_manager.prep_doc_id_context( request.GET.get('doc_id', None), request.user.first_name, bool(request.user.is_authenticated) )
-#     if request.GET.get('format', '') == 'json':
-#         resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
-#     else:
-#         resp = render( request, 'disa_app_templates/record_edit.html', context )
-#     return resp
 
 
 @shib_login
@@ -716,41 +657,13 @@ def error_check( request ):
         return HttpResponseNotFound( '<div>404 / Not Found</div>' )
 
 
+# ===========================
+# redesign EXAMPLE...
+# ===========================
 
 
-
-
-# # ==========
-# # works
-# # ==========
-# from sqlalchemy import Column, Integer, String, ForeignKey
-# from sqlalchemy import create_engine
-# engine = create_engine( settings_app.DB_URL, echo=True )
-# from sqlalchemy.ext.declarative import declarative_base
-# Base = declarative_base()
-
-# class Citation(Base):
-#     __tablename__ = '3_citations'
-#     id = Column( Integer, primary_key=True )
-#     citation_type_id = Column( Integer, ForeignKey('2_citation_types.id'), nullable=False )
-#     display = Column( String(500) )
-#     zotero_id = Column( String(255) )
-#     # comments = Column( UnicodeText() )
-#     acknowledgements = Column( String(255) )
-#     # references = db.relationship('Reference', backref='citation', lazy=True)
-
-#     def __repr__(self):
-#         return f'<Citation {self.id}>'
-
-# from sqlalchemy.orm import sessionmaker
-# Session = sessionmaker(bind = engine)
-# session = Session()
-# resultset: list = session.query( Citation ).all()
-# log.debug( f'type(resultset), `{type(resultset)}`' )
-
-# for row in resultset:
-#     citation: sqlalchemy.orm.state.InstanceState = row
-#     # log.debug( f'type(row), `{type(row)}`' )
-#     # log.debug( f'id, `{row.id}`; display, ```{row.display}```; citation_type_id, `{row.citation_type_id}`' )
-#     log.debug( f'citation, ```{pprint.pformat(citation.__dict__)}```' )
-#     # break
+def redesign_example( request ):
+    if project_settings.DEBUG == True:
+        return HttpResponse( 'This would show the actual new-flow response.' )
+    else:
+        return HttpResponse( 'Not yet running on production.' )
