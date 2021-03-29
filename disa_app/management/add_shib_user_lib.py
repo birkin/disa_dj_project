@@ -19,10 +19,10 @@ def add( user_json_path: str ):
         Triggered by `$ python ./manage.py add_shib_user --user_json_path="/path/to/add_user.json" """
     is_valid: bool = validate_json( user_json_path )
     if not is_valid:
-        print( 'user json-file check: problem; invalid' )
+        print( 'shib user json-file check: problem; invalid' )
         sys.exit()
     else:
-        print( 'user json-file check: good' )
+        print( 'shib user json-file check: good' )
     shib_backed_up = check_for_shib_backup()
     if not shib_backed_up:
         print( 'shib-backup check: problem; back up shib file' )
@@ -30,24 +30,24 @@ def add( user_json_path: str ):
     else:
         print( 'shib-backup check: good' )
     if not user_added_to_shib:
-        print( 'shib file check: problem; add user to shib file' )
+        print( 'shib file check: problem; add shib user to shib file' )
         sys.exit()
     else:
         print( 'shib file check: good' )
     if not user_in_DISA_db():
-        print( 'DISA-db check: user does not exist; will add' )
+        print( 'DISA-db check: shib user does not exist; will add' )
         if add_user_to_DISA_db():
-            print( 'DISA-db check: user added' )
+            print( 'DISA-db check: shib user added' )
         else:
-            print( 'DISA-db check: problem adding user' )
+            print( 'DISA-db check: problem adding shib user' )
     else:
         print( 'DISA-db check: good' )
     if not user_in_django_db():
-        print( 'django-db check: user does not exist; will add' )
+        print( 'django-db check: shib user does not exist; will add' )
         if add_user_to_django_db():
-            print( 'django-db check: user added' )
+            print( 'django-db check: shib user added' )
         else:
-            print( 'django-db check: problem adding user' )
+            print( 'django-db check: problem adding shib user' )
 
     else:
         print( 'django-db check: good' )
