@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="DISA database entry form">
+        <meta name="author" content="Brown University Library">
+        <title>DISA</title>
+        <!-- Bootstrap core CSS -->
+        <link href="../../static/lib/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="assets/css/sidebar-style.css" rel="stylesheet">
+        <link href="assets/css/dummy_file_forBootstrap5.css" rel="stylesheet">
+        <!-- Font Awesome JS -->
+        <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+        <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+        <script defer src="assets/js/dummy_file.js"></script>
+        <!-- The CCS below can be moved into an external file eventually -->
+        <style>
+        
+            /* Display toggle for the age field */
+
+            #formInputDISAPersonAge_number {
+                display: none;
+            }
+
+            .age-as-number #formInputDISAPersonAge_text {
+                display: none;    
+            }
+
+            .age-as-number #formInputDISAPersonAge_number {
+                display: initial;    
+            }
+        
+        </style>
+    </head>
+    <body>
+        <div class="wrapper" style="margin-top: 3.5em;">
+            <div id="sidebar">
+                <div class="sidebar-header">
+                    <div style="margin-right: -1.25em!important;">
+                        <div style="float: right;margin-top: .33em;">
+                            <button type="button" id="sidebarCollapse" class="btn btn-info">
+                                <span style="font-weight: bold;">Toggle&nbsp;<br></span> 
+                                <i class="fas fa-info-circle fa-3x"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h1>Welcome to the Database of Indigenous Slavery</h1>
+                    <p style="font-weight: bold;">This project, housed at Brown University, is a collaborative effort to build a database record of enslaved indigenous people throughout time, all across the Americas. Thank you for contributing to this project.</p>
+                    <p style="font-weight: bold;">Here's how to start adding information.</p>
+                    <p><i class="fas fa-arrow-right fa-lg" style="opacity: .55;"></i> CLICK <span class="sidebar-info-highlight">Add document</span> if you are entering people from a document that has not previously been added.</p>
+                    <p><i class="fas fa-arrow-right fa-lg" style="opacity: .55;"></i> SEARCH under <span class="sidebar-info-highlight">Your recent</span> or <span class="action-highlight">All recent</span> if you are opening a document that you or someone else previously created.</p>
+                    <p><i class="fas fa-arrow-right fa-lg" style="opacity: .55;"></i> The documents listed under <span class="sidebar-info-highlight">Your recent</span> offer the last fifteen documents you worked on.</p>
+                    <p><i class="fas fa-arrow-right fa-lg" style="opacity: .55;"></i> The documents under <span class="sidebar-info-highlight">All recent</span> list the documents that anyone entering information into DISA have created.</p>
+                    <p><i class="fas fa-arrow-right fa-lg" style="opacity: .55;"></i> CLICK <span class="sidebar-info-highlight">Show details</span> to see a timestamp and the username of the person who last edited each document.</p>
+                </div>
+            </div> <!-- /#sidebar -->
+            <div id="content">
+                <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+                    <a class="navbar-brand" style="margin-right:4%;" href="#">Database of Indigenous Slavery in the Americas</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                        <ul class="navbar-nav mr-auto nav-fill w-100">
+                            <li>
+                            <form class="form-inline my-2 my-lg-0">
+                                <input class="form-control mr-sm-2" type="text" placeholder="enter search-term" aria-label="Search">
+                                <button class="btn btn-secondary my-2 my-sm-0" type="submit">
+                                    <i class="fas fa-search fa-lg"></i>
+                                </button>
+                            </form>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">People</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">Documents</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Login / (Welcome, User)</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Logout</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <main class="container">
+                    <div id="startpanel">
+                        <h1 class="text-secondary">Choose a source document:</h1>
+                        <br>
+                        <br>
+                        <h3>Starting with a new document?</h3>
+                        <button type="button" class="btn btn-primary btn-lg" style="font-weight: bold;">ADD DOCUMENT</button>
+                        <br>
+                        <br>
+                        <br>
+                        <h3>Returning to a previously added document?</h3>
+                        <br>
+                        <h5 class="text-primary col-lg-5 col-sm-11" style="letter-spacing: .5px; padding: 0;">YOUR RECENT</h5>
+                        <table class="table table-striped col-lg-5 col-sm-11" style="background-color: white;">
+                            <thead style="background-color: #eeeeee;">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Document Title</th>
+                                    <th></th>
+                                    <!--<th>X</th>-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td class="table-info">The South Carolina Gazette, Sept. 6, 1734</td>
+                                    <td style="background-color: #eeeeee;">
+                                        <button type="button" class="close text-primary" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>The South Carolina Gazette, Sept. 7, 1734</td>
+                                    <td style="background-color: #eeeeee;">
+                                        <button type="button" class="close text-primary" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>The South Carolina Gazette, Sept. 8, 1734</td>
+                                    <td style="background-color: #eeeeee;">
+                                        <button type="button" class="close text-primary" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </td>
+                                </tr>                                 
+                            </tbody>
+                        </table>
+                        <br>
+                        <h5 class="text-primary col-lg-5 col-sm-11" style="letter-spacing: .5px; padding: 0;">ALL RECENT <a href="#" style="float: right;">Show details ></a></h5>
+                        <table class="table table-striped col-lg-5 col-sm-11" style="background-color: white;">
+                            <thead style="background-color: #eeeeee;">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Document Title</th>
+                                    <!--<th>X</th>
+			                         <th>X</th>-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td class="table-info">The South Carolina Gazette, Sept. 6, 1734</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>The South Carolina Gazette, Sept. 7, 1734</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>The South Carolina Gazette, Sept. 8, 1734</td>
+                                </tr>                                 
+                            </tbody>
+                        </table>                         
+                    </div> <!-- /#startpanel -->
+
+                    <!-- JavaScript-savvy URL control to toggle div display between #startpanel above & #tabs_bibinfoanditems below -->
+                    <div id="tabs_bibinfoanditems" style="margin-top:10em;">
+                        <ul class="nav nav-tabs" role="tablist"> 
+                            <li class="nav-item" role="tab"> 
+                                <a class="nav-link active" href="#Bibliographic-information" data-toggle="tab" role="tab" aria-controls="Bibliographic-information" aria-expanded="true">Bibliographic information</a> 
+                            </li>                             
+                            <li class="nav-item" role="tab"> 
+                                <a class="nav-link" href="#Items" data-toggle="tab" role="tab" aria-controls="Items" aria-expanded="true">Items</a> 
+                            </li>                             
+                        </ul>
+                        <div class="tab-content">
+                            <div class="active tab-pane" style="padding: 20px;" role="tabpanel" aria-labelledby="Bibliographic-information" id="Bibliographic-information">
+                                <h5 class="text-dark" style="width:25%;float:left;">Document type:</h5>
+                                <div style="clear: left;">
+                                    <label for="formInputDISADocType" style="padding-left:12%;">Item type:</label>
+                                    <select style="width:75%;float:right;" class="custom-select" id="formInputDISADocType"> 
+                                        <option selected>Newspaper Article</option>                                         
+                                        <option value="1">[Other doc format]</option>                                         
+                                        <option value="2">[Other doc format]</option>                                         
+                                        <option value="3">[Other doc format]</option>                                         
+                                    </select>
+                                </div>    
+                                <p>&nbsp;</p>
+                                <h5>Priority information</h5>
+                                <div class="form-group text-dark"> 
+                                    <label for="formInputDISATitle" style="padding-left:10%;">Title<span style="font-size:85%;" class="text-danger">(required)</span></label>
+                                    <input style="width:75%;float:right;" type="text" class="form-control" id="formInputDISATitle" placeholder="Enter Title"> 
+                                </div>
+                                <div class="form-group text-dark"> 
+                                    <label for="formInputDISAPlace" style="padding-left:15%;">Place</label>                                     
+                                    <input style="width:75%;float:right;" type="text" class="form-control" id="formInputDISAPlace" placeholder="Enter Place"> 
+                                </div>
+                                <label for="formInputDISABiblioDateYear" style="padding-left:15%;">Date</label>
+                                <div style="width:75%;float:right;">
+                                    <p style="width:25%;float:left;padding-right:10px;"> <select class="custom-select" id="formInputDISABiblioDateYear"> 
+                                            <option selected>Year</option>                                             
+                                            <option value="1">[Year values?]</option>                                             
+                                            <option value="2">[Year values?]</option>                                             
+                                            <option value="3">[Year values?]</option>                                             
+                                        </select>
+                                    </p>
+                                    <p style="width:25%;float:left;padding-right:10px;"> <select class="custom-select" id="formInputDISABiblioDateMonth"> 
+                                            <option selected>Month</option>                                             
+                                            <option value="1">[Month values?]</option>                                             
+                                            <option value="2">[Month values?]</option>                                             
+                                            <option value="3">[Month values?]</option>                                             
+                                        </select>
+                                    </p>
+                                    <p style="width:25%;float:left;padding-right:0px;"> <select class="custom-select" id="formInputDISABiblioDateDay"> 
+                                            <option selected>[Day]</option>                                             
+                                            <option value="1">[Day values?]</option>                                             
+                                            <option value="2">[Day values?]</option>                                             
+                                            <option value="3">[Day values?]</option>                                             
+                                        </select>
+                                    </p>
+                                </div>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <h5>Additional information</h5>
+                                <div class="form-group text-dark"> 
+                                    <label for="formInputDISAFieldA" style="padding-left:15%;">Field A</label>                                     
+                                    <input style="width:75%;float:right;" type="text" class="form-control" id="formInputDISAFieldA" placeholder="[Placeholder text]"> 
+                                </div>
+                                <div class="form-group text-dark"> 
+                                    <label for="formInputDISAFieldB" style="padding-left:15%;">Field B</label>                                     
+                                    <input style="width:75%;float:right;" type="text" class="form-control" id="formInputDISAFieldB" placeholder="[Placeholder text]">
+                                </div>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <div class="form-group"> 
+                                    <label for="formInputDISAAcknowledgements" style="padding-left:0%;">Acknowledgements</label>                                     
+                                    <textarea style="width:75%;float:right;" class="form-control" rows="3" id="formInputDISAAcknowledgements"></textarea> 
+                                </div>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <div class="form-group" style="clear:both;"> 
+                                    <label for="formInputDISABiblioResearcherNotes" style="padding-left:0%;">Researcher notes
+                                        <br>
+                                        <span style="font-size:85%;"><a href="#">Report problems or ask for help</a></span>
+                                    </label>                                     
+                                    <textarea style="width:75%;float:right;" class="form-control" rows="3" id="formInputDISABiblioResearcherNotes"></textarea> 
+                                </div>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <button type="button" class="btn btn-primary btn-md" style="font-weight: bold;">SAVE AND CONTINUE TO ENTER ITEMS</button>
+                            </div> <!-- /.tab-pane for bibinfo -->
+                            
+                            <!-- Items tab content, below, coded for Bootstrap v5 floating form fields -->
+                            <div class="tab-pane" role="tabpanel" aria-labelledby="Items" id="Items">
+                                <div style="padding: 0px; padding-top: 0px;">
+                                    <ul class="nav nav-tabs" role="tablist" style="padding: 20px;"> 
+                                        <li class="nav-item"> 
+                                            <a class="nav-link" href="#New-Item" data-toggle="tab" role="tab" aria-controls="New-Item" aria-expanded="true">New Item</a> 
+                                        </li>
+                                        <li style="font-weight: bold;padding-left: 25px;padding-top: 9px;" class="text-success">All changes saved</li>
+                                    </ul>
+                                    <div class="tab-content" style="background-color: white!important;opacity:1;">
+                                        <div class="active tab-pane" role="tabpanel" aria-labelledby="New-Item" id="New-Item" style="margin-top:-20px;padding-top:0px;">
+                                            <div class="row col-lg-12" style="padding-top:40px;padding-left:25px;">
+                                                <div class="col-md-6">
+                                                    <h5 class="text-dark" style="float:left;">Location in source document</h5>
+                                                    <p>&nbsp;</p>
+                                                                                                        
+                                                    <div class="form-floating">
+													  <input type="number" class="form-control" id="formInputDISAItemVolume" aria-label="Volume" placeholder="#">
+													  <label for="formInputDISAItemVolume">Volume</label>
+													</div> 
+                                                    
+                                                    <div class="form-floating">
+													  <input type="number" class="form-control" id="formInputDISASourcePageStart" aria-label="starting page number" placeholder="#">
+													  <label for="formInputDISASourcePageStart">Page number, from:</label>
+													</div>
+													
+													                                                    
+                                                    <div class="form-floating">
+													  <input type="number" class="form-control" id="formInputDISASourcePageEnd" aria-label="ending page number" placeholder="#">
+													  <label for="formInputDISASourcePageEnd">to:</label>
+													</div>                                                    
+                                                    
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h5 class="text-dark" style="float:left;">Item content</h5>
+                                                    <p>&nbsp;</p>
+                                                                                                        
+                                                     <div class="form-floating">
+												      <select class="form-select" id="formInputDISAItemType" aria-label="Event date: month">
+												        <option selected>Select an item type...</option>
+												        <option value="1">One</option>
+												        <option value="2">Two</option>
+												        <option value="3">Three</option>
+												      </select>
+												      <label for="formInputDISAItemType">Item type</label>
+												    </div>                                                    
+                                                                                                        
+                                                    <div class="form-floating">
+													  <textarea class="form-control" placeholder="" id="formInputDISAItemTranscription" style="height: 128px"></textarea>
+													  <label for="formInputDISAItemTranscription">Transcription</label>
+													  <a href="#" style="font-size:80%;font-weight:bold;clear:left;">Open in new window</a>
+													</div>                                                    
+                                                </div>
+                                            </div> <!-- /.row -->
+                                            <hr>
+                                            <div class="row" style="padding:25px;">
+                                                <div class="col-md-6">
+                                                    <h5 class="text-dark">Event date</h5>
+
+                                                   <div class="form-floating">
+												      <select class="form-select" id="formInputDISAEventDateMonth" aria-label="Event date: month">
+												        <option selected>Unspecified</option>
+												        <option value="1">Unspecified 1</option>
+												        <option value="2">Unspecified 2</option>
+												        <option value="3">Unspecified 3</option>
+												      </select>
+												      <label for="formInputDISAEventDateMonth">Month</label>
+												    </div>
+
+                                                   <div class="form-floating">
+												      <select class="form-select" id="formInputDISAEventDateDay" aria-label="Event date: day">
+												        <option selected>Unspecified</option>
+												        <option value="1">Unspecified 1</option>
+												        <option value="2">Unspecified 2</option>
+												        <option value="3">Unspecified 3</option>
+												      </select>
+												      <label for="formInputDISAEventDateDay">Day</label>
+												    </div>
+
+                                                   <div class="form-floating">
+												      <select class="form-select" id="formInputDISAEventDateYear" aria-label="Event date: year">
+												        <option selected>Unspecified</option>
+												        <option value="1">Unspecified 1</option>
+												        <option value="2">Unspecified 2</option>
+												        <option value="3">Unspecified 3</option>
+												      </select>
+												      <label for="formInputDISAEventDateYear">Year</label>
+												    </div>
+
+                                                    <div class="form-floating">
+													  <input type="text" class="form-control" id="formInputDISAEventDateInfo" aria-label="Additional date information" placeholder="">
+													  <label for="formInputDISAEventDateInfo">Additional date info.</label>
+													</div>                                                       
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h5 class="text-dark" style="">Place</h5>
+
+                                                    <div class="form-floating">
+												      <select class="form-select" id="formInputDISAColonialContext" aria-label="Colonial context">
+												        <option selected>Select a colonial context...</option>
+												        <option value="1">[context option 1]</option>
+												        <option value="2">[context option 2]</option>
+												        <option value="3">[context option 3]</option>
+												      </select>
+												      <label for="formInputDISAColonialContext">Colonial context</label>
+												    </div>
+
+                                                    <div class="form-floating">
+													  <input type="text" class="form-control" id="formInputDISAColonyState" aria-label="Colony / State" placeholder="">
+													  <label for="formInputDISAColonyState">Colony / State</label>
+													</div>
+
+                                                    <div class="form-floating">
+													  <input type="text" class="form-control" id="formInputDISATown" aria-label="Town" placeholder="">
+													  <label for="formInputDISATown">Town</label>
+													</div>
+
+                                                    <div class="form-floating">
+													  <input type="text" class="form-control" id="formInputDISAPlaceInfo" aria-label="Additional location information" placeholder="">
+													  <label for="formInputDISAPlaceInfo">Additional location info.</label>
+													</div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="row" style="padding-top:20px;padding-right:20px;">
+                                                <div class="col-md-12" style="margin-left: 40px;">
+                                                    <h5 class="text-dark" style="float:left;">People</h5>
+                                                    <a href="#" class="text-primary" style="padding-left: 25px;font-size: 107%;">ADD PERSON</a>
+                                                    <p>&nbsp;</p>
+                                                    <p></p> 
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12" style="padding: 40px;padding-top: 0px">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <a href="#">NEW PERSON</a>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div style="padding-left:20px;padding-top:20px;width:auto;position: relative;">
+                                                            <div>
+                                                                Name(s)
+                                                            </div>                                                            
+                                                        </div>
+                                                        <div style="float:right;width:87%;margin-bottom: 0;padding-bottom: 0;">
+                                                            <div style="padding: 20px;clear:none;margin-top:-20px;border:1px;border-color:LightGray;border-style: solid;clear: none;position: relative;margin-right:40px;">
+                                                                
+                                                               <div class="custom-control custom-switch" style=""> 
+                                                                 <input type="checkbox" class="custom-control-input" id="formCustomSwitchForAdvancedNames"> 
+                                                                 <label style="font-size: 85%;margin-top: -10px;font-weight:bold;" class="custom-control-label" for="formCustomSwitchForAdvancedNames">ADVANCED NAME OPTIONS</label>
+                                                               </div>
+                                                                
+                                                                <div class="form-floating">
+															      <select class="form-select" id="formInputDISAItemPersonNameType" aria-label="Name type">
+															        <option selected>[context option]</option>
+															        <option value="1">[context option 1]</option>
+															        <option value="2">[context option 2]</option>
+															        <option value="3">[context option 3]</option>
+															      </select>
+															      <label for="formInputDISAItemPersonNameType">Name type</label>
+															    </div>                                                                    
+                                                                                                                                
+                                                               <div class="form-floating">
+																  <input type="text" class="form-control" id="formInputDISAItemPersonNameTranscription" aria-label="Full name transcription" placeholder="">
+																  <label for="formInputDISAItemPersonNameTranscription">Full name transcription</label>
+																</div>
+																                                                                
+                                                                <div class="form-floating">
+																  <input type="text" class="form-control" id="formInputDISAItemPersonFirstName" aria-label="First name" placeholder="">
+																  <label for="formInputDISAItemPersonFirstName">First name</label>
+																</div>
+																                                                                                                                                
+                                                                <div class="form-floating">
+																  <input type="text" class="form-control" id="formInputDISAItemPersonLastName" aria-label="Last name" placeholder="">
+																  <label for="formInputDISAItemPersonLastName">Last name</label>
+																</div>
+                                                                
+                                                            </div>
+                                                            <p style="clear:both;float:left;padding-top:10px;"><i class="fas fa-plus-circle text-primary"></i>&nbsp;<a href="#" class="text-primary">ADD ANOTHER NAME</a></p>
+                                                        </div>
+                                                        
+                                                        <div class="row" style="padding-top:10px;clear: both;">
+                                                            <div class="col-md-6">
+
+                                                               <div class="form-floating">
+															      <select class="form-select" id="formInputDISAPersonGender" aria-label="New person's gender">
+															        <option selected>&nbsp;</option>
+															        <option value="1">&nbsp;</option>
+															        <option value="2">&nbsp;</option>
+															        <option value="3">&nbsp;</option>
+															      </select>
+															      <label for="formInputDISAPersonGender">Gender</label>
+															    </div>                                                                
+
+																<div class="form-group">
+																  <div class="form-floating">
+                                                                    <select style="" class="form-select" id="formInputDISAPersonAge_number" aria-label="New person's age (number)">
+                                                                        <option selected>&nbsp;</option>
+                                                                        <option value="-1">Unspecified</option>                                                                         
+                                                                        <option value="1">1 year</option>                                                                         
+                                                                        <option value="2">2 years</option>                                                                         
+                                                                        <option value="3">3 years</option>                                                                         
+                                                                    </select>
+                                                                    <label for="formInputDISAPersonAge_number">Age</label>
+                                                                    <input type="text" class="form-control" id="formInputDISAPersonAge_text" aria-label="New person's age (text)"> 
+                                                                    <div class="form-check" style="margin-top:-6px;"> 
+                                                                        <input class="form-check-input" style="margin-left:.125em;" type="checkbox" id="formInputSpecifiedByNumber" value="option1"> 
+                                                                        <label class="form-check-label" style="font-size: 85%;font-weight:bold;margin-left:.5em;margin-top:-10px;" for="formInputSpecifiedByNumber">AGE SPECIFIED BY A NUMBER</label>
+                                                                    </div>
+                                                                  </div>
+                                                                </div>
+                                                                
+                                                               <div class="form-floating">
+															      <select class="form-select" id="formInputDISAPersonStatus" aria-label="New person's status">
+															        <option selected>&nbsp;</option>
+															        <option value="1">&nbsp;</option>
+															        <option value="2">&nbsp;</option>
+															        <option value="3">&nbsp;</option>
+															      </select>
+															      <label for="formInputDISAPersonStatus">Status</label>
+															    </div> 
+															                                                                                                                                    
+			                                                    <div class="form-floating">
+																  <input type="text" class="form-control" id="formInputDISAStatusInfo" aria-label="Additional status information" placeholder="">
+																  <label for="formInputDISAStatusInfo">Additional status info.</label>
+																</div>
+                                                                
+                                                                <div class="form-floating">
+																  <input type="text" class="form-control" id="formInputDISAPersonVocation" aria-label="Vocation" placeholder="">
+																  <label for="formInputDISAPersonVocation">Vocation</label>
+																</div>                                                                
+                                                                
+                                                            </div>
+                                                            
+                                                            <div class="col-md-6">
+
+			                                                    <div class="form-floating">
+															      <select class="form-select" id="formInputDISAPersonRace" aria-label="New person's race">
+															        <option selected>&nbsp;</option>
+															        <option value="1">&nbsp;</option>
+															        <option value="2">&nbsp;</option>
+															        <option value="3">&nbsp;</option>
+															      </select>
+															      <label for="formInputDISAPersonRace">Race</label>
+															    </div>
+												                                                                    
+			                                                    <div class="form-floating">
+																  <input type="text" class="form-control" id="formInputDISAPersonRaceTerms" aria-label="Exact racial terms used" placeholder="">
+																  <label for="formInputDISAPersonRaceTerms">Exact racial terms used</label>
+																</div>
+																
+                                                                <div class="form-floating">
+															      <select class="form-select" id="formInputDISAPersonTribe" aria-label="New person's tribe">
+															        <option selected>&nbsp;</option>
+															        <option value="1">&nbsp;</option>
+															        <option value="2">&nbsp;</option>
+															        <option value="3">&nbsp;</option>
+															      </select>
+															      <label for="formInputDISAPersonTribe">Tribe</label>
+															    </div>                                                                 
+                                                                                                                                
+                                                                <div class="form-floating">
+																  <input type="text" class="form-control" id="formInputDISAPersonTribeTerms" aria-label="Exact identity/geographical terms used" placeholder="">
+																  <label for="formInputDISAPersonTribeTerms">Exact identity/geographical terms used</label>
+																</div>                                                                  
+                                                                                                                                
+                                                                <div class="form-floating">
+																  <input type="text" class="form-control" id="formInputDISAPersonGeoOrigins" aria-label="Geographic origins" placeholder="">
+																  <label for="formInputDISAPersonGeoOrigins">Geographic origins</label>
+																</div> 
+																                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>  <!-- /.card-body for a new person -->
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-lg-12" style="padding-top:0px;padding-left:40px;padding-right:40px;padding-bottom:40px;">
+                                                
+                                                <div class="form-floating">
+												  <textarea class="form-control" placeholder="Enter notes here..." id="formInputDISAPeopleResearcherNotes" style="height: 128px"></textarea>
+												  <label for="formInputDISAPeopleResearcherNotes">Researcher notes</label>
+												  <a href="#" style="font-size:80%;font-weight:bold;clear:left;">Report problems or ask for help</a>
+												</div> 
+                                                
+                                                <button type="button" class="btn btn-secondary btn-md" style="font-weight: bold;margin-top: 20px;">ALL CHANGES SAVED</button>
+                                                <button type="button" class="btn btn-primary btn-md" style="font-weight: bold;margin-top: 20px;margin-left: 15px;">SAVE ITEM AND EXIT THIS SOURCE DOCUMENT</button>
+                                            </div>
+                                            
+                                        </div> <!-- /.tab-pane for items -->
+                                    </div> <!-- /.tab-content for items -->
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- /#tabs_bibinfoanditems -->
+                </main>
+            </div>  <!-- /#content -->
+        </div>  <!-- /.wrapper -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script>window.jQuery || document.write('<script src="../../static/lib/bootstrap-5.0.0-beta2-dist/js/bootstrap.bundle.min.js"><\/script>')</script>
+        <!-- below loads v4.5 (vs. v5) JS until tab switching bug is fixed -->
+        <script src="../../static/lib/bootstrap-4.5.0-dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+        <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+    	</script>
+    </body>
+</html>

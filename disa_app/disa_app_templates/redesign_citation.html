@@ -1,0 +1,1148 @@
+formInputDISAPersonStatusformInputDISAPersonStatus{% extends "disa_app_templates/redesign_base.html" %}
+
+{% block header_other %}
+
+<link href="/static/css/redesign_citation.css" rel="stylesheet"></link>
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<!-- Production version of Vue
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+-->
+
+<script type="module">
+
+  // THIS IS THE MAIN MODULE
+  // It initializes the data structure and passes it to main()
+
+  import {main} from '/static/js/redesign_citation.js';
+  import {LOCAL_SETTINGS} from '/static/js/redesign_settings.js';
+
+  function preprocessCitationData(data) { 
+
+    // Convert dates to YYYY-MM-DD format
+    // @todo should be done on server
+
+    if (data.citation_type_fields.date) {
+      data.citation_type_fields.date = 
+        (new Date(data.citation_type_fields.date))
+        .toISOString()
+        .slice(0,10);
+    }
+
+    if (data.citation_type_fields.accessDate) {
+      data.citation_type_fields.accessDate = 
+        (new Date(data.citation_type_fields.accessDate))
+        .toISOString()
+        .slice(0,10);
+    }
+
+    return data;
+  }
+
+  const SERVER_SETTINGS = {
+    citation_data: preprocessCitationData(JSON.parse(
+    `{{ citation_json | safe }}`
+    )),
+    doc_id: '{{ doc.id }}',
+    cite_type_fields: JSON.parse(
+      `{{ ct_fields_json | safe }}`
+    ),
+    docDataApi: {
+      root: "{% url 'data_documents_url' %}",
+      copy: "{% url 'data_documents_url' 'copy' %}",
+      docId: "{% url 'data_documents_url' 'STUB' %}",
+      noDocId: "{% url 'data_documents_url' %}"
+    },
+    ref_del_api: "{% url 'data_reference_url' 'STUB' %}",
+    documents_url: "{% url 'editor_index_url' %}",
+    can_delete_doc: {% if can_delete_doc %}true{% else %}false{% endif %},
+    MENU_OPTIONS: {
+      document_type: {
+        '-1':'Unspecified / not clear',
+        '20':'Book',
+        '21':'Book Section',
+        '26':'Document',
+        '33':'Interview',
+        '34':'Journal Article',
+        '36':'Magazine Article',
+        '37':'Manuscript',
+        '39':'Newspaper Article',
+        '46':'Thesis',
+        '49':'Webpage'
+      },
+      formInputDISAPersonTribe: {
+        'tribe0':'Unspecified / not clear',
+        'tribe1':'Bocotora',
+        'tribe2':'Eastern Pequot',
+        'tribe3':'Mashantucket Pequot',
+        'tribe4':'Mohegan',
+        'tribe5':'Naragansett',
+        'tribe6':'Pequot',
+        'tribe7':'Wampanoag',
+        'tribe8':'Woolwa'
+      },
+      formInputDISAPersonVocation: {
+        '0': 'Not specified',
+        '1': 'Baker',
+        '2': 'Cordwainer',
+        '3': 'Farmer',
+        '4': 'Lawyer',
+        '5': 'Leatherer',
+        '6': 'Malster',
+        '7': 'Mariner',
+        '8': 'Merchant',
+        '9': 'Sadler',
+        '10': 'Ship Captain',
+        '11': 'Shopkeeper'
+      },
+      formInputDISAPersonStatus: {
+        'status0':'None specified',
+        'status1':'Free',
+        'status2':'Indentured Servant, Court-Ordered',
+        'status3':'Indentured Servant, General',
+        'status4':'Indentured Servant, Parental',
+        'status5':'Indentured Servant, Voluntary',
+        'status6':'Servant',
+        'status7':'Slave',
+        'status8':'Unclear',
+        'status9':'Other'
+      },
+      formInputDISAPersonGender: {
+        '0': 'Not specified',
+        '1': 'Male',
+        '2': 'Female',
+        '3': 'Two spirit'
+      },
+      formInputDISAColonialContext: {
+        '1': 'Unspecified',
+        '2': 'American (U.S.)',
+        '3': 'British',
+        '4': 'Dutch',
+        '5': 'French',
+        '6': 'Portuguese',
+        '7': 'Spanish',
+        '8': 'Other'
+      },
+      formInputDISAItemPersonNameType: {
+        '1': 'Alias',
+        '2': 'Baptismal',
+        '3': 'English',
+        '4': 'European',
+        '5': 'Indian',
+        '6': 'Nickname',
+        '7': 'Given',
+        '8': 'Unknown'
+      },
+      formInputDISAPersonRace: {
+        '1':'Black',
+        '2':'Indian',
+        '3':'Multi-racial',
+        '4':'White',
+        '5':'Not specified'
+      }
+    },
+    items: [ // TEMP - until Birkin inserts real data
+      {
+        id: 111,
+        type: 3,
+        volume: 44,
+        page_start: 5,
+        page_end: 55,
+        title: 'Red',
+        referents: [
+          { 
+            id: 777, 
+            names: [
+              {id: 3, firstName: 'Jack', lastName: 'Hill', type: 0},
+              {id: 875, firstName: 'Jackson', lastName: 'Hill', type: 1}
+            ], 
+            age: 33, age_number: true,
+            gender: 2,
+            tribe: 1,
+            transcription: 'J. Hill' 
+          },
+          { 
+            id: 888, 
+            names: [{ id: 6, firstName: 'Jill', lastName: 'Hill', type: 2}], 
+            age: 'young girl', age_number: false, 
+            gender: 1,
+            tribe: 2,
+            transcription: '' 
+          },
+          { 
+            id: 999, 
+            names: [{ id: 8, firstName: 'Sandy', lastName: 'Hill', type: 4}], 
+            gender: 0,
+            tribe: 3,
+            transcription: 'Sandy X. Hill'  
+          }
+        ]
+      },
+      {
+        id: 112,
+        type: 4,
+        volume: 33,
+        page_start: 25,
+        page_end: 27,
+        title: 'Green',
+        referents: []
+      }
+    ],
+    currentItemId: -1,
+    currentReferentId: -1,
+    currentNameId: -1
+  };
+
+  const SETTINGS = Object.assign({}, LOCAL_SETTINGS, SERVER_SETTINGS);
+  console.log('SETTINGS', SETTINGS);
+  // @todo keep local/server settings separate so that server 
+  //  settings can be sent back to server?
+  main(SETTINGS);
+
+</script>
+
+{% endblock header_other %}
+
+<!-- Just a note that we could have page-specific sidebar documentation here, if desired. -->
+
+{% block sidebar %}
+{% endblock sidebar %}
+
+<!-- The content-block html below is within the redesign_base.html template's `<main class="container">` element. -->
+
+{% block content %}
+
+<!-- JavaScript-savvy URL control to toggle div display between 
+     #startpanel above & #tabs_bibinfoanditems below -->
+
+<!-- MAIN NAV TABS -->
+
+<div id="tabs_bibinfoanditems" style="margin-top:10em;">
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active"
+              id="bib-tab" 
+              data-bs-toggle="tab" 
+              data-bs-target="#Bibliographic-information" 
+              type="button" role="tab" aria-controls="Bibliographic-information" 
+              aria-selected="true">
+        Bibliographic information
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="item-tab" 
+              data-bs-toggle="tab" 
+              data-bs-target="#Items" 
+              type="button" role="tab" aria-controls="Items" 
+              aria-selected="false">
+        Items
+      </button>
+    </li>
+  </ul>
+
+  <!-- TAB CONTENT -->
+
+  <div class="tab-content">
+
+    <!-- Citation Tab -->
+
+    <div class="tab-pane show active" style="padding: 20px;"
+         role="tabpanel" aria-labelledby="bib-tab"
+         id="Bibliographic-information">
+
+      <form id="citation-form" 
+            v-on:submit.prevent="onSubmitForm">
+        <span class="badge badge-primary float-right"
+          title="Unique identifier for this citation">
+          ID {{ doc.id }}
+        </span>
+        <h5 class="text-dark" style="width:25%;float:left;">
+          Citation type
+        </h5>
+        <div style="clear: left;margin-bottom: 36px;">
+          <select class="custom-select" id="document_type"
+                  v-model="citation_data.citation_type_id">
+            <!-- If unselected, show this at the top -->
+            <option value="0" class="initMessage" 
+                    v-if="!citation_data.citation_type_id">
+              Select a document type:
+            </option>
+            <option v-for="(docTypeName, docTypeId) in MENU_OPTIONS.document_type"
+                    v-bind:value="docTypeId"
+                    v-text="docTypeName">
+            </option>
+          </select>
+  </div>
+
+  <div id="citation-fields" 
+       style="display:flex; flex-direction:column">
+
+    <!-- HEADERS: Priority vs Optional -->
+
+    <h5 id="required-fields-header" style="order:100;" hidden>
+      Priority information
+    </h5>
+    <h5 id="optional-fields-header" style="order:200;margin-top: 24px;" hidden>
+      Additional information
+    </h5>
+
+    <!-- FIELDS: Dynamically moved under headings via flexbox order property -->
+
+    <!--<div class="citation-field form-group text-dark"
+         id="abstractNote">
+      <label for="abstractNote-value"
+        style="padding-left:15%;">Abstract Note</label>
+      <input id="abstractNote-value" name="abstractNote-value"
+        placeholder="Abstract Note"
+        v-model="citation_data.citation_type_fields.abstractNote" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="abstractNote">
+      <input type="text" class="form-control" id="abstractNote-value" aria-label="Abstract Note" placeholder="Abstract Note" v-model="citation_data.citation_type_fields.abstractNote">
+      <label for="abstractNote-value">Abstract Note</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="accessDate">
+      <label for="accessDate-value"
+        style="padding-left:15%;">Access Date</label>
+      <input id="accessDate-value" name="accessDate-value"
+        type="date" placeholder="Access Date"
+        v-model="citation_data.citation_type_fields.accessDate" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="accessDate">
+      <input type="text" class="form-control" id="accessDate-value" name="accessDate-value" aria-label="Access Date" placeholder="Access Date" v-model="citation_data.citation_type_fields.accessDate">
+      <label for="accessDate-value">Access Date</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark" id="archive">
+      <label for="archive-value"
+        style="padding-left:15%;">Archive</label>
+      <input id="archive-value" name="archive-value"
+        placeholder="Archive" 
+        v-model="citation_data.citation_type_fields.archive" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="archive">
+      <input type="text" class="form-control" id="archive-value" name="archive-value" aria-label="Archive" placeholder="Archive" v-model="citation_data.citation_type_fields.archive">
+      <label for="archive-value">Archive</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="archiveLocation">
+      <label for="archiveLocation-value"
+        style="padding-left:15%;">Archive Location</label>
+      <input id="archiveLocation-value"
+        name="archiveLocation-value"
+        placeholder="Archive Location"
+        v-model="citation_data.citation_type_fields.archiveLocation" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="archiveLocation">
+      <input type="text" class="form-control" id="archiveLocation-value" name="archiveLocation-value" aria-label="Archive Location" placeholder="Archive Location" v-model="citation_data.citation_type_fields.archiveLocation">
+      <label for="archiveLocation-value">Archive Location</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="author">
+      <label for="author-value"
+        style="padding-left:15%;">Author</label>
+      <input id="author-value" name="author-value"
+        placeholder="Author (last name comes first)"
+        v-model="citation_data.citation_type_fields.author" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="author">
+      <input type="text" class="form-control" id="author-value" name="author-value" aria-label="Author" placeholder="Author (last name comes first)" v-model="citation_data.citation_type_fields.author">
+      <label for="author-value">Author</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="callNumber">
+      <label for="callNumber-value"
+        style="padding-left:15%;">Call Number</label>
+      <input id="callNumber-value" name="callNumber-value"
+        placeholder="Call Number"
+        v-model="citation_data.citation_type_fields.callNumber" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="callNumber">
+      <input type="text" class="form-control" id="callNumber-value" name="callNumber-value" aria-label="Call Number" placeholder="Call Number" v-model="citation_data.citation_type_fields.callNumber">
+      <label for="callNumber-value">Call Number</label>
+    </div>
+
+    <div class="citation-field form-group text-dark"
+      id="date">
+      <label for="date-value"
+        style="padding-right:12px;">Date</label>
+      <input id="date-value" name="date-value" placeholder="Date"
+             type="date"
+             v-model="citation_data.citation_type_fields.date" /> 
+
+      {% comment "BROKEN OUT WITH YEAR/MONTH/DAY FOR WHEN WE'RE IMPLEMENTING THE NEW DATA MODEL" %}
+
+      <label for="date-year-value">Year 
+        <input id="date-year-value" name="date-year-value" type="number" 
+                v-model="citation_data.citation_type_fields['date-year']" />
+      </label>
+      <label for="date-month-value">Month
+        <select id="date-month-value" name="date-month-value"
+                v-model="citation_data.citation_type_fields['date-month']">
+          <option value="0">Not specified</option>
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </label>
+      <label for="date-day-value">Day
+        <select id="date-day-value" name="date-day-value"
+                v-model="citation_data.citation_type_fields['date-day']">
+          <option	value="0">	Not specified	</option>
+          <option	value="1">	1	</option>
+          <option	value="2">	2	</option>
+          <option	value="3">	3	</option>
+          <option	value="4">	4	</option>
+          <option	value="5">	5	</option>
+          <option	value="6">	6	</option>
+          <option	value="7">	7	</option>
+          <option	value="8">	8	</option>
+          <option	value="9">	9	</option>
+          <option	value="10">	10	</option>
+          <option	value="11">	11	</option>
+          <option	value="12">	12	</option>
+          <option	value="13">	13	</option>
+          <option	value="14">	14	</option>
+          <option	value="15">	15	</option>
+          <option	value="16">	16	</option>
+          <option	value="17">	17	</option>
+          <option	value="18">	18	</option>
+          <option	value="19">	19	</option>
+          <option	value="20">	20	</option>
+          <option	value="21">	21	</option>
+          <option	value="22">	22	</option>
+          <option	value="23">	23	</option>
+          <option	value="24">	24	</option>
+          <option	value="25">	25	</option>
+          <option	value="26">	26	</option>
+          <option	value="27">	27	</option>
+          <option	value="28">	28	</option>
+          <option	value="29">	29	</option>
+          <option	value="30">	30	</option>
+          <option	value="31">	31	</option>
+        </select>
+      </label>
+      {% endcomment %}
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="edition">
+      <label for="edition-value"
+        style="padding-left:15%;">Edition</label>
+      <input id="edition-value" name="edition-value"
+        placeholder="Edition" 
+        v-model="citation_data.citation_type_fields.edition" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="edition">
+      <input type="text" class="form-control" id="edition-value" name="edition-value" aria-label="Edition" placeholder="Edition" v-model="citation_data.citation_type_fields.edition">
+      <label for="edition-value">Edition</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="extra">
+      <label for="extra-value"
+        style="padding-left:15%;">Extra</label>
+      <input id="extra-value" name="extra-value"
+        placeholder="Extra" 
+        v-model="citation_data.citation_type_fields.extra" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="extra">
+      <input type="text" class="form-control" id="extra-value" name="extra-value" aria-label="Extra" placeholder="Extra" v-model="citation_data.citation_type_fields.extra">
+      <label for="extra-value">Extra</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="ISBN">
+      <label for="ISBN-value"
+        style="padding-left:15%;">ISBN</label>
+      <input id="ISBN-value" name="ISBN-value"
+        placeholder="ISBN" 
+        v-model="citation_data.citation_type_fields.ISBN" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="ISBN">
+      <input type="text" class="form-control" id="ISBN-value" name="ISBN-value" aria-label="ISBN" placeholder="ISBN" v-model="citation_data.citation_type_fields.ISBN">
+      <label for="ISBN-value">ISBN</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="ISSN">
+      <label for="ISSN-value"
+        style="padding-left:15%;">ISSN</label>
+      <input id="ISSN-value" name="ISSN-value"
+        placeholder="ISSN" 
+        v-model="citation_data.citation_type_fields.ISSN" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="ISSN">
+      <input type="text" class="form-control" id="ISSN-value" name="ISSN-value" aria-label="ISSN" placeholder="ISSN" v-model="citation_data.citation_type_fields.ISSN">
+      <label for="ISSN-value">ISSN</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="language">
+      <label for="language-value"
+        style="padding-left:15%;">Language</label>-->
+        <!-- @todo SHOULD BE A DROPDOWN? -->
+      <!--<input id="language-value" name="language-value"
+        placeholder="Language" 
+        v-model="citation_data.citation_type_fields.language" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="language">
+      <!-- @todo SHOULD BE A DROPDOWN? -->
+      <input type="text" class="form-control" id="language-value" name="language-value" aria-label="Language" placeholder="Language" v-model="citation_data.citation_type_fields.language">
+      <label for="language-value">Language</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="libraryCatalog">
+      <label for="libraryCatalog-value"
+        style="padding-left:15%;">Library Catalog</label>
+      <input id="libraryCatalog-value"
+        name="libraryCatalog-value"
+        placeholder="Library Catalog"
+        v-model="citation_data.citation_type_fields.libraryCatalog" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="libraryCatalog">
+      <input type="text" class="form-control" id="libraryCatalog-value" name="libraryCatalog-value" aria-label="Library Catalog" placeholder="Library Catalog" v-model="citation_data.citation_type_fields.libraryCatalog">
+      <label for="libraryCatalog-value">Library Catalog</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="pages">
+      <label for="pages-value"
+        style="padding-left:15%;">Pages</label>
+      <input id="pages-value" name="pages-value"
+        placeholder="Pages"
+        v-model="citation_data.citation_type_fields.pages" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="pages">
+      <input type="text" class="form-control" id="pages-value" name="pages-value" aria-label="Pages" placeholder="Pages" v-model="citation_data.citation_type_fields.pages">
+      <label for="pages-value">Pages</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="place">
+      <label for="place-value"
+        style="padding-left:15%;">Place</label>
+      <input id="place-value" name="place-value"
+        placeholder="Place"
+        v-model="citation_data.citation_type_fields.place" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="place">
+      <input type="text" class="form-control" id="place-value" name="place-value" aria-label="Place" placeholder="Place" v-model="citation_data.citation_type_fields.place">
+      <label for="place-value">Place</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="publicationTitle">
+      <label for="publicationTitle-value"
+        style="padding-left:15%;">Publication Title</label>
+      <input id="publicationTitle-value"
+        name="publicationTitle-value"
+        placeholder="Publication Title"
+        v-model="citation_data.citation_type_fields.publicationTitle" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="publicationTitle">
+      <input type="text" class="form-control" id="publicationTitle-value" name="publicationTitle-value" aria-label="Publication Title" placeholder="Publication Title" v-model="citation_data.citation_type_fields.publicationTitle">
+      <label for="publicationTitle-value">Publication Title</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="rights">
+      <label for="rights-value"
+        style="padding-left:15%;">Rights</label>
+      <input id="rights-value" name="rights-value"
+        placeholder="Rights"
+        v-model="citation_data.citation_type_fields.rights" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="rights">
+      <!-- @todo DROPDOWN? -->
+      <input type="text" class="form-control" id="rights-value" name="rights-value" aria-label="Rights" placeholder="Rights" v-model="citation_data.citation_type_fields.rights">
+      <label for="rights-value">Rights</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="section">
+      <label for="section-value"
+        style="padding-left:15%;">Section</label>
+      <input id="section-value" name="section-value"
+        placeholder="Section"
+        v-model="citation_data.citation_type_fields.section" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="section">
+      <input type="text" class="form-control" id="section-value" name="section-value" aria-label="Section" placeholder="Section" v-model="citation_data.citation_type_fields.section">
+      <label for="section-value">Section</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="series">
+      <label for="series-value"
+        style="padding-left:15%;">Series</label>
+      <input id="series-value" name="series-value"
+        placeholder="Series"
+        v-model="citation_data.citation_type_fields.series" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="series">
+      <input type="text" class="form-control" id="series-value" name="series-value" aria-label="Series" placeholder="Series" v-model="citation_data.citation_type_fields.series">
+      <label for="series-value">Series</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="seriesNumber">
+      <label for="seriesNumber-value"
+        style="padding-left:15%;">Series Number</label>
+      <input id="seriesNumber-value" name="seriesNumber-value"
+        placeholder="Series Number" 
+        v-model="citation_data.citation_type_fields.seriesNumber" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="seriesNumber">
+      <input type="text" class="form-control" id="seriesNumber-value" name="seriesNumber-value" aria-label="Series Number" placeholder="Series Number" v-model="citation_data.citation_type_fields.seriesNumber">
+      <label for="seriesNumber-value">Series Number</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="shortTitle">
+      <label for="shortTitle-value"
+        style="padding-left:15%;">Short Title</label>
+      <input id="shortTitle-value" name="shortTitle-value"
+        placeholder="Short Title" 
+        v-model="citation_data.citation_type_fields.shortTitle" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="shortTitle">
+      <input type="text" class="form-control" id="shortTitle-value" name="shortTitle-value" aria-label="Short Title" placeholder="Short Title" v-model="citation_data.citation_type_fields.shortTitle">
+      <label for="shortTitle-value">Short Title</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark"
+      id="title">
+      <label for="title-value"
+        style="padding-left:15%;">Title</label>
+      <input id="title-value" name="title-value"
+        placeholder="Title"
+        v-model="citation_data.citation_type_fields.title" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="title">
+      <input type="text" class="form-control" id="title-value" name="title-value" aria-label="Title" placeholder="Title" v-model="citation_data.citation_type_fields.title">
+      <label for="title-value">Title</label>
+    </div>
+
+    <!--<div class="citation-field form-group text-dark" id="url">
+      <label for="url-value"
+        style="padding-left:15%;">URL</label>
+      <input id="url-value" name="url-value"
+        type="url" placeholder="https://..." 
+        v-model="citation_data.citation_type_fields.url" />
+    </div>-->
+
+    <div class="citation-field form-floating" id="url">
+      <input type="text" class="form-control" id="url-value" name="url-value" aria-label="URL" placeholder="Full website link (URL)" v-model="citation_data.citation_type_fields.url">
+      <label for="url-value">URL</label>
+    </div>
+
+  </div>
+
+  <!--<div class="form-group">
+    <label for="formInputDISAAcknowledgements"
+      style="padding-left:0%;">Acknowledgements</label>
+    <textarea style="width:75%;float:right;"
+      class="form-control" rows="3"
+      id="formInputDISAAcknowledgements"></textarea>
+  </div>-->
+
+  <div class="form-floating">
+      <textarea class="form-control" placeholder="Enter notes here..." id="formInputDISAAcknowledgements" style="height: 128px"></textarea>
+      <label for="formInputDISAAcknowledgements">Acknowledgements</label>
+  </div>
+
+  <!--<div class="form-group" style="clear:both; margin-top: 3em">
+    <label for="formInputDISABiblioResearcherNotes"
+      style="padding-left:0%;">Researcher notes
+      <br>
+      <span style="font-size:85%;"><a href="#">Report problems
+          or ask for help</a></span>
+    </label>
+    <textarea style="width:75%;float:right;"
+      class="form-control" rows="3"
+      id="formInputDISABiblioResearcherNotes"></textarea>
+  </div>-->
+
+  <div class="form-floating">
+      <textarea class="form-control" placeholder="Enter notes here..." id="formInputDISABiblioResearcherNotes" style="height: 128px"></textarea>
+      <label for="formInputDISABiblioResearcherNotes">Researcher notes</label>
+      <a href="#" style="font-size:80%;font-weight:bold;clear:left;">Report problems or ask for help</a>
+  </div>
+
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+    
+  <button type="submit" 
+    class="btn btn-primary btn-md"
+    id="citation-form-submit">
+    SAVE AND CONTINUE TO ENTER ITEMS
+  </button>
+  </form>
+    </div> <!-- /.tab-pane for bibinfo -->
+
+    <!-- Item Tab -->
+
+    <div class="tab-pane card-body" 
+         role="tabpanel" aria-labelledby="item-tab" id="Items">
+
+      <div>
+
+      <div class="card card-body bg-light">
+        <button class="btn btn-primary"
+                aria-controls="New-Item" 
+                v-on:click="makeNewItem">
+          Create new item
+        </button>
+        <label>
+          Current item 
+          <select v-model="currentItemId">
+            <option v-for="(currentItem, currentItemIndex) in items"
+                    v-bind:value="currentItem.id"
+                    v-text="currentItem.title">
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <!--
+      <ul class="nav nav-tabs" role="tablist" style="padding: 20px;">
+        <li class="nav-item">
+          <a class="nav-link" href="#New-Item" 
+             data-toggle="tab" role="tab" 
+             aria-controls="New-Item" aria-expanded="true"
+             v-on:click="makeNewItem">
+            New Item
+          </a>
+        </li>
+        <li style="font-weight: bold;padding-left: 25px;padding-top: 9px;" class="text-success">All changes saved</li>
+      </ul> -->
+      <div class="tab-content" style="background-color: white!important;opacity:1;">
+        <div class="active tab-pane" role="tabpanel" aria-labelledby="New-Item" id="New-Item" style="margin-top:-20px;padding-top:0px;">
+          <div id="item-form">
+            <div v-for="(item, index) in items">
+              <!-- Item listing (CURRENTLY DISABLED) -->
+              <!--
+              <h4 v-on:click="currentItemId = (currentItemId === item.id) ? -1 : item.id">
+                v{item.title}v
+                <span class="badge badge-primary float-right"
+                      title="Unique identifier for this item">
+                  ID: v{item.id}v
+                </span>
+              </h4> -->
+              <!-- Item edit form -->
+              <div>
+                v{ currentItemId }v =? v{ item.id }v
+              </div>
+              <div v-if="currentItemId === item.id"
+                   style="clear: both">
+                <h1>
+                  v{ item.title }v
+                </h1>
+                <form>
+                  <div class="row col-lg-12" style="padding-top:40px;padding-left:25px;">
+                    <div class="col-md-6">
+                      <h5 class="text-dark" style="float:left;">Location in source document</h5>
+                      <p>&nbsp;</p>
+                      <div class="form-floating">
+                        <input type="number" class="form-control" 
+                                id="formInputDISAItemVolume" aria-label="Volume" 
+                                placeholder="#" v-bind:value="item.volume">
+                        <label for="formInputDISAItemVolume">Volume</label>
+                      </div>
+                      <div class="form-floating">
+                        <input type="number" 
+                                class="form-control" id="formInputDISASourcePageStart" aria-label="starting page number" 
+                                placeholder="#" v-bind:value="item.page_start">
+                        <label for="formInputDISASourcePageStart">Page number, from:</label>
+                      </div>
+                      <div class="form-floating">
+                        <input type="number" 
+                                class="form-control" id="formInputDISASourcePageEnd" aria-label="ending page number" 
+                                placeholder="#" v-bind:value="item.page_end">
+                        <label for="formInputDISASourcePageEnd">to:</label>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <h5 class="text-dark" style="float:left;">Item content</h5>
+                      <p>&nbsp;</p>
+                      <div class="form-floating">
+                        <select class="form-select" 
+                                id="formInputDISAItemType" 
+                                aria-label="Event date: month"
+                                v-bind:value="item.type">
+                          <option value="0">	[Select]	</option>
+                          <option value="1">	Birth	</option>
+                          <option value="2">	Correspondence	</option>
+                          <option value="3">	Court	</option>
+                          <option value="4">	Death	</option>
+                          <option value="5">	Governmental	</option>
+                          <option value="6">	Indenture	</option>
+                          <option value="7">	Legal	</option>
+                          <option value="8">	Minutes	</option>
+                          <option value="9">	Petition	</option>
+                          <option value="10">	Purchase	</option>
+                          <option value="11">	Other	</option>
+                          <option value="12">	Runaway	</option>
+                          <option value="13">	Sale	</option>
+                        </select>
+                        <label for="formInputDISAItemType">Item type</label>
+                      </div>
+                      <div class="form-floating">
+                        <textarea class="form-control" 
+                                  placeholder="Transcription" 
+                                  id="formInputDISAItemTranscription" 
+                                  style="height: 128px"></textarea>
+                        <label for="formInputDISAItemTranscription">Transcription</label>
+                        <a href="#" style="font-size:80%;font-weight:bold;clear:left;">Open in new window</a> </div>
+                    </div>
+                  </div> <!-- /.row -->
+                  <hr>
+                  <div class="row" style="padding:25px;">
+                    <div class="col-md-6">
+                      <h5 class="text-dark">Event date</h5>
+                      <div class="form-floating">
+                        <select class="form-select" id="formInputDISAEventDateMonth" aria-label="Event date: month">
+                          <option value="0" selected>Unspecified</option>
+                          <option value="1">January</option>
+                          <option value="2">February</option>
+                          <option value="3">March</option>
+                          <option value="4">April</option>
+                          <option value="5">May</option>
+                          <option value="6">June</option>
+                          <option value="7">July</option>
+                          <option value="8">August</option>
+                          <option value="9">September</option>
+                          <option value="10">October</option>
+                          <option value="11">November</option>
+                          <option value="12">December</option>
+                        </select>
+                        <label for="formInputDISAEventDateMonth">Month</label>
+                      </div>
+                      <div class="form-floating">
+                        <!-- 
+                        <select class="form-select" id="formInputDISAEventDateDay" aria-label="Event date: day">
+                          <option value="0" selected>Unspecified</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="0">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                          <option value="13">13</option>
+                          <option value="14">14</option>
+                          <option value="15">15</option>
+                          <option value="16">16</option>
+                          <option value="17">17</option>
+                          <option value="18">18</option>
+                          <option value="19">19</option>
+                          <option value="20">20</option>
+                          <option value="21">21</option>
+                          <option value="22">22</option>
+                          <option value="23">23</option>
+                          <option value="24">24</option>
+                          <option value="25">25</option>
+                          <option value="26">26</option>
+                          <option value="27">27</option>
+                          <option value="28">28</option>
+                          <option value="29">29</option>
+                          <option value="30">30</option>
+                          <option value="31" disabled>31</option>
+                        </select>-->
+                        <label for="formInputDISAEventDateDay">
+                          Day
+                        </label>
+                        <input id="formInputDISAEventDateDay" 
+                               type="number" min="0" max="31">
+                      </div>
+                      <div class="form-floating">
+                        <input id="formInputDISAEventDateYear" 
+                                type="number" min="1500" max="1900">
+                        <label for="formInputDISAEventDateYear">Year</label>
+                      </div>
+                      <div class="form-floating">
+                        <input type="text" class="form-control" id="formInputDISAEventDateInfo" aria-label="Additional date information" placeholder="Additional date info.">
+                        <label for="formInputDISAEventDateInfo">Additional date info.</label>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <h5 class="text-dark" style="">Place</h5>
+                      <div class="form-floating">
+                        <select class="form-select" id="formInputDISAColonialContext" aria-label="Colonial context">
+                          <!-- <option selected>Select a colonial context...</option> -->
+                          <option v-for="(colonialContextOption, colonialContextOptionId) in MENU_OPTIONS.formInputDISAColonialContext"
+                                  v-bind:value="colonialContextOptionId"
+                                  v-text="colonialContextOption">
+                        </select>
+                        <label for="formInputDISAColonialContext">Colonial context</label>
+                      </div>
+                      <div class="form-floating">
+                        <input type="text" class="form-control" id="formInputDISAColonyState" aria-label="Colony / State" placeholder="Colony / State">
+                        <label for="formInputDISAColonyState">Colony / State</label>
+                      </div>
+                      <div class="form-floating">
+                        <input type="text" class="form-control" id="formInputDISATown" aria-label="Town" placeholder="Town">
+                        <label for="formInputDISATown">Town</label>
+                      </div>
+                      <div class="form-floating">
+                        <input type="text" class="form-control" id="formInputDISAPlaceInfo" aria-label="Additional location information" placeholder="Additional location info.">
+                        <label for="formInputDISAPlaceInfo">Additional location info.</label>
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
+
+                  <!-- People -->
+
+                  <div class="row" style="padding-top:20px;padding-right:20px;">
+                    <div class="col-md-12" style="margin-left: 40px;">
+                      <h5 class="text-dark" style="float:left;">People
+                        <button class="btn btn-link btn-sm"
+                                v-on:click="makeNewReferent">
+                         +new
+                      </button>
+                      </h5>
+                      <div class="col-lg-12" style="padding-right: 40px; clear: both">
+                        <div class="card" 
+                             v-for="(referent, referentIndex) in item.referents">
+                          <div class="card-header"
+                               v-on:click="currentReferentId = (currentReferentId === referent.id) ? -1 : referent.id">
+                            v{referent.names[0].firstName}v 
+                            v{referent.names[0].lastName}v
+                          </div>
+                          <div class="card-body" 
+                               v-if="currentReferentId === referent.id">
+                            <div class="card card-body">
+                              <div>
+                                <strong v-text="'Name' + (referent.names.length > 1 ? 's' : '')"></strong>
+                                <button type="button" class="btn btn-link btn-sm" id="formInputDISAPersonAddName"
+                                        v-on:click="makeNewReferentName">
+                                  +new
+                                </button>
+                              </div>
+                              <ul>
+                                <li v-for="(name, nameIndex) in referent.names">
+
+                                  <div v-on:click="currentNameId = (currentNameId === name.id) ? -1 : name.id">
+                                    <span v-if="name.firstName || name.lastName">
+                                        v{ name.firstName }v
+                                        v{ name.lastName }v
+                                    </span>
+                                    <em v-else>
+                                      New name
+                                    </em>
+                                  </div>
+
+                                  <div v-if="currentNameId === name.id">
+    
+                                    <!-- ADVANCED NAMES - DEFER TO V2
+                                    <div class="custom-control custom-switch" style="">
+                                      <input type="checkbox" class="custom-control-input" id="formCustomSwitchForAdvancedNames"
+                                              v-model="referent.name">
+                                      <label style="font-size: 85%;margin-top: -10px;font-weight:bold;" 
+                                              class="custom-control-label" for="formCustomSwitchForAdvancedNames">
+                                        ADVANCED NAME OPTIONS (if the first / last name designation doesn't apply)
+                                      </label>
+                                    </div> -->
+    
+                                    <div class="form-floating">
+                                      <select class="form-select" id="formInputDISAItemPersonNameType" aria-label="Name type"
+                                              v-model="referent.nameType">
+                                        <option v-for="(nameType, nameTypeId) in MENU_OPTIONS.formInputDISAItemPersonNameType"
+                                                v-bind:value="nameTypeId"
+                                                v-text="nameType">
+                                        </option>
+                                      </select>
+                                      <label for="formInputDISAItemPersonNameType">Name type</label>
+                                    </div>
+                                    <!-- NAME TRANSCRIPTION - DEFER TO V2? OR DROP?
+                                    <div class="form-floating">
+                                      <input type="text" 
+                                              class="form-control" id="formInputDISAItemPersonNameTranscription" 
+                                              aria-label="Full name transcription" 
+                                              placeholder="The name as it's written in the document"
+                                              v-model="referent.transcription">
+                                      <label for="formInputDISAItemPersonNameTranscription">Full name transcription</label>
+                                    </div> -->
+                                    <div class="form-floating">
+                                      <input type="text" class="form-control" id="formInputDISAItemPersonFirstName" 
+                                              aria-label="First name" placeholder="First name"
+                                              v-model="referent.names[nameIndex].firstName">
+                                      <label for="formInputDISAItemPersonFirstName">First name</label>
+                                    </div>
+                                    <div class="form-floating">
+                                      <input type="text" class="form-control" id="formInputDISAItemPersonLastName" 
+                                              aria-label="Last name" placeholder="Last name"
+                                              v-model="referent.names[nameIndex].lastName">
+                                      <label for="formInputDISAItemPersonLastName">Last name</label>
+                                    </div>
+                                  </div>
+                                </li>
+                              </ul>
+                            </div>
+                            <div class="row" style="padding-top:10px;clear: both;">
+                              <div class="col-md-6">
+                                <div class="form-floating">
+                                  <select class="form-select" id="formInputDISAPersonGender" 
+                                          aria-label="New person's gender" placeholder="Gender"
+                                          v-model="referent.gender">
+                                    <option v-for="(genderOption, genderOptionId) in MENU_OPTIONS.formInputDISAPersonGender"
+                                            v-bind:value="genderOptionId"
+                                            v-text="genderOption">
+                                  </select>
+                                  <label for="formInputDISAPersonGender">Gender</label>
+                                </div>
+                                <div class="form-group">
+                                  <div class="form-floating">
+                                    <!--
+                                    <input vv-if="TEST FOR age_number"
+                                            type="number" min="0" max="110"> -->
+                                    <select style="" class="form-select" id="formInputDISAPersonAge_number" aria-label="New person's age (number)" placeholder="New person's age (number)">
+                                      <option selected>&nbsp;</option>
+                                      <option value="-1">Unspecified</option>
+                                      <option value="1">1 year</option>
+                                      <option value="2">2 years</option>
+                                      <option value="3">3 years</option>
+                                    </select>
+                                    <label for="formInputDISAPersonAge_number">Age</label>
+                                    <input type="text" class="form-control" id="formInputDISAPersonAge_text" aria-label="New person's age (text)" placeholder="New person's age (text)">
+                                    <div class="form-check" style="margin-top:-6px;">
+                                      <input class="form-check-input" style="margin-left:.125em;" type="checkbox" id="formInputSpecifiedByNumber" value="option1">
+                                      <label class="form-check-label" style="font-size: 85%;font-weight:bold;margin-left:.5em;margin-top:-10px;" for="formInputSpecifiedByNumber">AGE SPECIFIED BY A NUMBER</label>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="form-floating">
+                                  <select class="form-select" id="formInputDISAPersonStatus" aria-label="New person's status" placeholder="Status">
+                                    <!-- NEED TO MAKE THIS INTO A SUGGEST AREA
+                                      <option v-for="(statusOption, statusOptionId) in MENU_OPTIONS.formInputDISAPersonStatus"
+                                              v-bind:value="statusOptionId"
+                                              v-text="statusOption"> -->
+                                  </select>
+                                  <label for="formInputDISAPersonStatus">Status</label>
+                                </div>
+                                <div class="form-floating">
+                                  <input type="text" class="form-control" id="formInputDISAStatusInfo" aria-label="Additional status information" placeholder="Additional status info.">
+                                  <label for="formInputDISAStatusInfo">Additional status info.</label>
+                                </div>
+                                <div class="form-floating">
+                                  <select class="form-control" id="formInputDISAPersonVocation" aria-label="Vocation" placeholder="Vocation">
+                                    <option v-for="(vocationOption, vocationOptionId) in MENU_OPTIONS.formInputDISAPersonVocation"
+                                            v-bind:value="vocationOptionId"
+                                            v-text="vocationOption">
+                                    </option>
+                                  </select>
+                                  <label for="formInputDISAPersonVocation">Vocation</label>
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="form-floating">
+                                  <select class="form-select" id="formInputDISAPersonRace" aria-label="This person's race designation">
+                                      <option v-for="(raceOption, raceOptionId) in MENU_OPTIONS.formInputDISAPersonStatus"
+                                              v-bind:value="raceOptionId"
+                                              v-text="raceOption"></option>
+                                  </select>
+                                  <label for="formInputDISAPersonRace">Race</label>
+                                </div>
+                                <div class="form-floating">
+                                  <input type="text" class="form-control" id="formInputDISAPersonRaceTerms" aria-label="Exact racial terms used" placeholder="Exact racial terms used">
+                                  <label for="formInputDISAPersonRaceTerms">Exact racial terms used</label>
+                                </div>
+                                <div class="form-floating">
+                                  <select class="form-select" id="formInputDISAPersonTribe" aria-label="This person's tribe">
+                                      <option v-for="(tribeOption, tribeOptionId) in MENU_OPTIONS.formInputDISAPersonTribe"
+                                              v-bind:value="tribeOptionId"
+                                              v-text="tribeOption">
+                                  </select>
+                                  <label for="formInputDISAPersonTribe">Tribe</label>
+                                </div>
+                                <div class="form-floating">
+                                  <input type="text" class="form-control" id="formInputDISAPersonTribeTerms" aria-label="Exact identity/geographical terms used" placeholder="Exact identity/geographical terms used">
+                                  <label for="formInputDISAPersonTribeTerms">Exact identity/geographical terms used</label>
+                                </div>
+                                <div class="form-floating">
+                                  <input type="text" class="form-control" id="formInputDISAPersonGeoOrigins" aria-label="Geographic origins" placeholder="Geographic origins">
+                                  <label for="formInputDISAPersonGeoOrigins">Geographic origins</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ITEM NOTES -->
+
+                  <hr />
+                  <div class="col-lg-12" style="padding-top:0px;padding-left:40px;padding-right:40px;padding-bottom:40px;">
+                    <div class="form-floating">
+                      <textarea class="form-control" placeholder="Enter notes here..." id="formInputDISAPeopleResearcherNotes" style="height: 128px"></textarea>
+                      <label for="formInputDISAPeopleResearcherNotes">Researcher notes</label>
+                      <a href="#" style="font-size:80%;font-weight:bold;clear:left;">Report problems or ask for help</a> </div>
+                    <button type="button" class="btn btn-secondary btn-md" style="font-weight: bold;margin-top: 20px;">ALL CHANGES SAVED</button>
+                    <button type="button" class="btn btn-primary btn-md" style="font-weight: bold;margin-top: 20px;margin-left: 15px;">SAVE ITEM AND EXIT THIS SOURCE DOCUMENT</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- /.tab-pane for items --> 
+      </div> <!-- /.tab-content for items --> 
+    </div>
+    </div>
+  </div>
+</div> <!-- /#tabs_bibinfoanditems -->
+
+{% endblock content %}
+
+
+{% block page_specific_js %}
+
+
+{% endblock page_specific_js %}
+
+
+

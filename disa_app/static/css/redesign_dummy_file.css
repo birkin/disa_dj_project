@@ -1,0 +1,60 @@
+@media (min-width: 768px) {
+	.bd-placeholder-img-lg {
+	font-size: 3.5rem;
+	}
+}
+
+.bd-placeholder-img {
+	font-size: 1.125rem;
+	text-anchor: middle;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.sidebar-info-highlight {
+	background-color: #d0e9fe;
+	color: black;
+	padding: 3px;
+	padding-left: 6px;
+	padding-right: 6px;
+	font-weight: bold;
+	opacity: .83;
+}
+
+div.tab-content {
+	background-color: #d0e9fe;
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th {
+	background-color: #eff8fa;
+}
+
+#tabs_bibinfoanditems a.active.nav-link {
+	background-color: #d0e9fe!important;
+	border-color:#d0e9fe;
+	border-width:2px;
+	/* font-weight: bold; */
+}
+
+#tabs_bibinfoanditems a.nav-link {
+	background-color: white!important;
+	color: grey;
+}
+
+h5 {
+	font-weight: bold;
+}
+
+label {
+	padding-top: 7px;
+}
+
+.col-md-6 a, label a, .form-group a {
+	color: #007bff;
+}
+
+textarea, .form-select, input {
+	margin-bottom: 12px;
+}

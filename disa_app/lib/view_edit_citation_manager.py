@@ -41,20 +41,33 @@ def query_data( cite_id: str ) -> dict:
     return data
 
 
-# def query_data( cite_id: str ) -> dict:
-#     """ Queries and massages data.
-#         Called by views.edit_citation() """
-#     session = make_session()
-#     data = {}
-#     citation_type_data = build_ct_js_data( session )
-#     cite = session.query( models_alch.Citation ).get( cite_id )
-#     log.debug( f'cite.references, ```{cite.references}```' )
-#     cite_dct = cite.dictify()
-#     data['ct_fields'] = citation_type_data
-#     data['ct_fields_json'] = json.dumps( citation_type_data )
-#     data['doc'] = cite_dct
-#     log.debug( f'data, ```{data}```' )
-#     return data
+def redesign_query_data( cite_id: str ) -> dict:
+    """ Prepares structural form-data, and citation-data.
+        Called by views.redesign_citation() """
+    session = make_session()
+    data = {}
+    citation_type_data = build_ct_js_data( session )
+    cite = session.query( models_alch.Citation ).get( cite_id )
+    if cite:
+        log.debug( f'cite, ``{cite}``' )
+        log.debug( f'cite.references, ```{cite.references}```' )
+        cite_dct = cite.dictify()
+        log.debug( f'cite_dct, ``{pprint.pformat(cite_dct)}``' )
+        data['ct_fields'] = citation_type_data
+        data['ct_fields_json'] = json.dumps( citation_type_data )
+        data['doc'] = cite_dct
+        ## create json object
+        cite_obj = cite_dct.copy()
+        del cite_obj['references']
+        cite_obj['citation_db_id'] = cite_obj.pop('id')
+        cite_obj['citation_type_fields'] = cite_obj.pop('fields')
+        cite_obj['citation_uuid'] = 'not-yet-implemented'
+        data['citation_json'] = json.dumps( cite_obj )
+        log.debug( f'data, ``{pprint.pformat(data)}``' )
+    else:
+        data = None
+    log.debug( f'data, ```{data}```' )
+    return data
 
 
 def manage_create( user_id: int ) -> dict:

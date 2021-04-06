@@ -1,0 +1,21 @@
+
+/* Display toggle for the age field */
+
+#formInputDISAPersonAge_number { 
+	display: none;
+}
+
+.age-as-number #formInputDISAPersonAge_text {
+	display: none;
+}
+
+.age-as-number #formInputDISAPersonAge_number {
+	display: initial;
+}
+
+/* Main tabs have a white background */
+
+#Bibliographic-information, #Items {
+  background: white;
+}
+

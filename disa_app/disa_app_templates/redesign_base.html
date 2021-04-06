@@ -1,0 +1,163 @@
+{% load staticfiles %}
+
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="DISA database entry form">
+        <meta name="author" content="Brown University Library">
+
+        {% if title %}
+        <title>{{ title }}</title>
+        {% else %}
+        <title>DISA</title>
+        {% endif %}
+
+        <!-- Bootstrap core CSS -->
+        {% comment %}
+          <link href="../../static/lib/bootstrap-4.5.0-dist/css/bootstrap.min.css" rel="stylesheet">
+          <link href="assets/css/sidebar-style.css" rel="stylesheet">
+          <link href="assets/css/dummy_file.css" rel="stylesheet">
+        {% endcomment %}
+        <link href="{% static 'lib/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+        {# <script src="../../static/lib/bootstrap-5.0.0-beta2-dist/js/bootstrap.bundle.min.js"><\/script> #}
+        <link href="{% static 'css/redesign_sidebar-style.css' %}" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" 
+                integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" 
+                crossorigin="anonymous"></script>
+
+         {# <link href="{% static 'css/dummy_file_forBootstrap5.css' %}" rel="stylesheet"> #}
+         <link href="{% static 'css/redesign_dummy_file.css' %}" rel="stylesheet">
+
+        <!-- Font Awesome JS -->
+        <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" 
+                integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" 
+                crossorigin="anonymous"></script>
+        <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" 
+                integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" 
+                crossorigin="anonymous"></script>
+
+        {% block header_other %}{% endblock %}
+
+    </head>
+
+    <body>
+
+        <div class="wrapper" style="margin-top: 3.5em;">
+
+            {% block sidebar %}
+            {% endblock sidebar %}
+
+            <div id="content">
+
+                <!-- navbar inner layout/positioning will need code adjustments for Bootstrap v4.5 -> v5 switch -->
+                <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+                    <div class="container-fluid">
+                    <a class="navbar-brand" style="margin-right:4%;" href="#">Database of Indigenous Slavery in the Americas</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                        <ul class="navbar-nav mr-auto nav-fill w-100">
+                            <li>
+
+                            {% comment %} <!--
+                              <form class="form-inline my-2 my-lg-0">
+                                  <input class="form-control mr-sm-2" type="text" placeholder="enter search-term" aria-label="Search">
+                                  <button class="btn btn-secondary my-2 my-sm-0" type="submit">
+                                      <i class="fas fa-search fa-lg"></i>
+                                  </button>
+                              </form> --> 
+                            {% endcomment %}
+
+                            <form class="d-flex" action="{% url 'search_results_url' %}" method="get">
+
+                                {% if search_query %}
+                                <input class="form-control mr-sm-2" type="text" placeholder="searched: `{{ search_query }}`" aria-label="Search" id="query" name="query">
+                                <!-- <input type="text" class="searchTerm" placeholder="searched: `{{ search_query }}`" id="query" name="query"> -->
+                                {% else %}
+                                <input class="form-control mr-sm-2" type="text" placeholder="enter search-term" aria-label="Search" id="query" name="query">
+                                <!-- <input type="text" class="searchTerm" placeholder="enter search-term" id="query" name="query"> -->
+                                {% endif %}
+
+                                <button class="d-flex btn btn-secondary my-2 my-sm-0" style="margin-bottom:11px!important;" type="submit">
+                                    <i class="fas fa-search fa-lg"></i>
+                                </button>
+                            </form>
+
+                            </li>
+
+                            {% comment "COMMENTED OUT ON THE SERVER" %}
+
+                            <!-- removed 2020-July-23 because the `Citations` link is the home-link
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{% url 'redesign_home_url' %}">Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            -->
+
+                            <!--
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">People</a>
+                            </li>
+                            -->
+
+                            <!--
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">Documents</a>
+                            </li>
+                            -->
+
+                            <!--
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Login / (Welcome, User)</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Logout</a>
+                            </li>
+                            -->
+
+                            {% endcomment %}
+
+                            {% if user_is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'people_url' %}" tabindex="-1" aria-disabled="false">People</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'redesign_citations_url' %}" tabindex="-1" aria-disabled="false">Citations</a>
+                            </li>
+                            <li class="nav-item">
+                                <ul class="navbar-text text-white">(Welcome {{ user_first_name }})</ul>
+                            </li>
+                            <li class="nav-item">
+                                {% if logout_next %}
+                                <a class="nav-link" href="{% url 'logout_url' %}?next={{ logout_next }}">Logout</a>
+                                {% else %}
+                                <a class="nav-link" href="{% url 'logout_url' %}?next={% url 'login_url' %}">Logout</a>
+                                {% endif %}
+                            </li>
+                            {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login_url' %}">Login</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                  </div>
+                </nav>
+
+                <main class="container">
+                    {% block content %}
+                    {% endblock content %}
+                </main>
+
+            </div>  <!-- /#content -->
+
+        </div>  <!-- /.wrapper -->
+
+        {% block page_specific_js %}
+        {% endblock page_specific_js %}
+
+    </body>
+</html>

@@ -21,16 +21,13 @@ urlpatterns = [
     url( r'^user_pass_handler/$', views.user_pass_handler, name='user_pass_handler_url' ),
 
     url( r'^browse/$', views.browse_tabulator, name='browse_url' ),
-    # url( r'^browse_old/$', views.browse_old, name='browse_old_url' ),
     url( r'^browse_logout/$', views.browse_logout, name='browse_logout_url' ),
 
     url( r'^editor/documents/$', views.edit_citation, name='edit_citation_url' ),
     url( r'^editor/documents/(?P<cite_id>.*)/$', views.edit_citation, name='edit_citation_url' ),
 
     url( r'^editor/records/$', views.edit_record, name='edit_record_url' ),
-    # url( r'^editor/records/(?P<rec_id>.*)/$', views.edit_record, name='edit_record_url' ),
     url( r'^editor/records/(?P<rec_id>.*)/$', views.edit_record_w_recid, name='edit_record_w_recid_url' ),
-
 
     url( r'^editor/person/$', views.edit_person, name='edit_person_root_url' ),
     url( r'^editor/person/(?P<rfrnt_id>.*)/$', views.edit_person, name='edit_person_url' ),
@@ -43,6 +40,15 @@ urlpatterns = [
     url( r'^source/(?P<src_id>.*)/$', views.source, name='source_url' ),
 
     url( r'^search_results/$', views.search_results, name='search_results_url' ),
+
+
+    # --------------------
+    # redesign...
+    # --------------------
+
+    url( r'^redesign_home/$', views.redesign_home, name='redesign_home_url' ),
+    url( r'^redesign_citations/$', views.redesign_citations, name='redesign_citations_url' ),
+    url( r'^redesign_citations/(?P<cite_id>.*)/$', views.redesign_citation, name='redesign_citation_url' ),
 
 
     ## apis...
@@ -62,6 +68,7 @@ urlpatterns = [
     url( r'^data/relationships/(?P<rltnshp_id>.*)/$', views.data_relationships, name='data_relationships_url' ),
 
     url( r'^data/reference_group/(?P<incoming_uuid>.*)/$', views.data_reference_group, name='data_group_url' ),
+
 
     ## utility-urls (protected, act as viewable integrity checks)...
 
@@ -86,12 +93,6 @@ urlpatterns = [
 
     # url( r'^$', RedirectView.as_view(pattern_name='browse_url') ),
     url( r'^$', RedirectView.as_view(pattern_name='info_url') ),
-
-    # --------------------
-    # redesign example...
-    # --------------------
-
-    url( r'^redesign_example/$', views.redesign_example, name='redesign_example_url' ),
 
     ]
 
