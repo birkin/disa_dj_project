@@ -720,11 +720,20 @@ def redesign_citations( request ):
 def redesign_citation( request, cite_id=None ):
     """ Displays specific citation. """
     log.debug( '\n\nstarting redesign_citation()' )
+    log.debug( f'cite_id, ``{cite_id}``; type(cite_id), ``{type(cite_id)}``' )
+    log.debug( f'request.__dict__, ``{request.__dict__}``' )
+    log.debug( f'payload, ```{pprint.pformat(request.body)}```' )
+    log.debug( f'request.user.profile.old_db_id, ``{request.user.profile.old_db_id}``' )
+    log.debug( f'request.user.id, ``{request.user.id}``' )
+
+    assert type(cite_id) == str
+    try:
+        int(cite_id)
+    except:
+        return HttpResponseNotFound( '404 / Not Found' )
+
     if project_settings.DEBUG == False:
         return HttpResponse( 'Not yet running on production.' )
-
-    if cite_id == None:
-        return HttpResponseNotFound( '404 / Not Found' )
 
     # context: dict = view_edit_citation_manager.redesign_query_data( cite_id )
     ( scheme, host ) = ( request.scheme, request.META.get('HTTP_HOST', '127.0.0.1') )
