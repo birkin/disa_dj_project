@@ -78,6 +78,7 @@ def redesign_query_data( cite_id: str, scheme, host ) -> dict:
     """ Prepares structural form-data, and citation-data.
         Called by views.redesign_citation() """
     log.debug( 'starting redesign_query_data()' )
+    log.debug( f'cite_id, ``{cite_id}``' )
     assert type(cite_id) == str; assert type(scheme) == str; assert type(host) == str
     session = make_session()
     data = {}
